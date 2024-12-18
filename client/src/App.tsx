@@ -2,13 +2,15 @@ import { LatLngExpression, Icon } from 'leaflet';
 import {
   MapContainer,
   Marker,
+  Popup,
   TileLayer,
   useMap,
 } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { ResourceNode, NodeType} from "./types"
 
 import 'leaflet/dist/leaflet.css';
 import './App.css';
-import { useEffect, useState } from 'react';
 
 // https://www.flaticon.com/free-icon/rhombus_10239023?term=diamond+shape&page=1&position=25&origin=search&related_id=10239023
 const userIcon = new Icon({
@@ -18,8 +20,40 @@ const userIcon = new Icon({
   className: "cursor-default",
 });
 
+async function fetchResourceNodes(
+  lat: number, lon: number,
+): Promise<ResourceNode[]> {
+  const url = `http://localhost:8000/api/nodes?lat=${lat}&lon=${lon}&radius=${100}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch resource nodes: ${response.statusText}`);
+    }
+
+    const data: ResourceNode[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching resource nodes:", error);
+    return [];
+  }
+};
 export default function App() {
-  const [userPos, setUserPos] = useState<LatLngExpression | null>(null);
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
+  const [nodes, setNodes] = useState<ResourceNode[]>([
+    {id: 9, lat:29.08285592455191, lon:-80.92710605018715, nodeType: NodeType.TREE}
+  ]);
+
+  async function loadResourceNodes() {
+      if (!userPos) return;
+      const [lat, lon] = userPos;
+      // console.log(`Fetching coords ${lat}, ${lon}`);
+      setNodes(await fetchResourceNodes(lat, lon));
+  }
+
+  useEffect(() => {
+    loadResourceNodes();
+  }, [userPos]);
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
@@ -41,11 +75,26 @@ export default function App() {
     return <h2>Locating Position...</h2>;
   }
 
+  return <GameMap userPos={userPos} nodes={nodes} />;
+}
+
+async function copyCoordsToClipboard(lat: number, lon: number) {
+  const coordsMsg = `${lat}, ${lon}`;
+  await navigator.clipboard.writeText(coordsMsg);
+}
+
+function GameMap(props: {
+  userPos: [number, number],
+  nodes: ResourceNode[],
+}) {
+  const { userPos, nodes } = props;
+  // if (nodes.length) console.log("node[0].lat:", nodes[0].lat);
+  // console.log("userPos:", userPos);
   return (
     <MapContainer
       style={{height: "100vh"}}
       center={userPos}
-      zoom={16}
+      zoom={17}
       dragging={false}
       zoomControl={false}
       doubleClickZoom={false}
@@ -60,11 +109,26 @@ export default function App() {
       />
       <MapUpdater center={userPos} />
       <Marker position={userPos} icon={userIcon} />
+      {nodes.map((node, idx) => (
+        <Marker position={[node.lat, node.lon]} icon={userIcon} key={idx}>
+          <Popup>
+            {node.nodeType}<br/>
+            lat: {node.lat.toFixed(5)}{" "}
+            lon: {node.lon.toFixed(5)}
+            <br/>
+            <button onClick={async () => {
+              await copyCoordsToClipboard(node.lat, node.lon);
+            }}>
+              Copy to Clipboard
+            </button>
+          </Popup>
+        </Marker>
+      ))}
     </MapContainer>
   );
 }
 
-function MapUpdater({ center }: { center: LatLngExpression }) {
+function MapUpdater({ center }: { center: [number, number] }) {
   const map = useMap(); // gets the closest parent <MapContainer />
   useEffect(() => {
     map.setView(center);
