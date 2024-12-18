@@ -1,10 +1,23 @@
 import random
 from enum import Enum
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from util import to_camel_case
 
 app = FastAPI()
+
+allowed_origins = [
+    "http://localhost:5173",  # Frontend's URL
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 
 class NodeType(str, Enum):
@@ -14,7 +27,7 @@ class NodeType(str, Enum):
     ROCK_IRON = "rockIron"
 
 
-NODE_TYPE_WEIGHTS: dict[NodeType, int] = {
+NODE_TYPE_WEIGHTS = {
     NodeType.TREE: 100,
     NodeType.ROCK_BASIC: 40,
     NodeType.ROCK_COPPER: 25,
