@@ -8,17 +8,29 @@ import {
 } from 'react-leaflet';
 import { useEffect, useState } from 'react';
 import { ResourceNode, NodeType} from "./types"
+import {
+  userIcon,
+  treeNodeIcon,
+  stoneNodeIcon,
+  copperNodeIcon,
+  ironNodeIcon,
+} from "./icons"
 
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 
-// https://www.flaticon.com/free-icon/rhombus_10239023?term=diamond+shape&page=1&position=25&origin=search&related_id=10239023
-const userIcon = new Icon({
-  iconUrl: "/diamond.png",
-  iconSize: [24, 30],
-  iconAnchor: [12, 15],
-  className: "cursor-default",
-});
+function getResourceIcon(nodeType: NodeType) {
+  switch (nodeType) {
+    case NodeType.TREE:
+      return treeNodeIcon;
+    case NodeType.ROCK_BASIC:
+      return stoneNodeIcon;
+    case NodeType.ROCK_COPPER:
+      return copperNodeIcon;
+    case NodeType.ROCK_IRON:
+      return ironNodeIcon;
+  }
+}
 
 async function fetchResourceNodes(
   lat: number, lon: number,
@@ -110,7 +122,11 @@ function GameMap(props: {
       <MapUpdater center={userPos} />
       <Marker position={userPos} icon={userIcon} />
       {nodes.map((node, idx) => (
-        <Marker position={[node.lat, node.lon]} icon={userIcon} key={idx}>
+        <Marker
+          position={[node.lat, node.lon]}
+          icon={getResourceIcon(node.nodeType)}
+          key={idx}
+        >
           <Popup>
             {node.nodeType}<br/>
             lat: {node.lat.toFixed(5)}{" "}
