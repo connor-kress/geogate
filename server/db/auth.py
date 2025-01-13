@@ -86,3 +86,15 @@ async def get_user_from_auth_session(
         email=row["email"],
         createdAt=row["created_at"],
     )
+
+
+async def get_auth_session_id(
+    conn: Connection, token_hash: str
+) -> Optional[int]:
+    query = """
+    SELECT s.id AS session_id
+    FROM auth_sessions s
+    WHERE s.session_token_hash = $1 AND s.expires_at > NOW()
+    """
+    auth_session_id = await conn.fetchval(query, token_hash)
+    return auth_session_id
