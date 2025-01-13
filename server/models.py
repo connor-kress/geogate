@@ -41,3 +41,14 @@ class User(BaseModel):
 
     class Config:
         populate_by_name = True
+
+
+class GameSession(BaseModel):
+    id: int
+    user_id: int = Field(..., alias="userId")
+    auth_session_id: int = Field(..., alias="authSessionId")
+    location: Coords
+    created_at: datetime = Field(..., alias="createdAt")
+
+    class Config:
+        populate_by_name = True
