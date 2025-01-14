@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useUserStore } from "../stores/userStore";
 import { useNodeStore } from "../stores/nodeStore";
 import 'leaflet/dist/leaflet.css';
+import { useSessionStore } from "../stores/sessionStore";
 
 async function copyCoordsToClipboard(coords: Coords) {
   const coordsMsg = `${coords.lat}, ${coords.lon}`;
@@ -13,7 +14,7 @@ async function copyCoordsToClipboard(coords: Coords) {
 
 export function GameMap() {
   const username = useUserStore((state) => state.username);
-  const position = useUserStore((store) => store.position);
+  const position = useSessionStore((store) => store.location);
   const nodes = useNodeStore((store) => store.nodes);
 
   if (!position) {

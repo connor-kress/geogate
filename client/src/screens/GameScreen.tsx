@@ -6,6 +6,7 @@ import { useUserStore } from "../stores/userStore";
 import { ScreenHandler } from "../types";
 import { useNodeStore } from "../stores/nodeStore";
 import { LogoutButton } from "../components/LogoutButton";
+import { useSessionStore } from "../stores/sessionStore";
 
 
 export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
@@ -13,7 +14,10 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
 
   const username = useUserStore((state) => state.username);
   const userId = useUserStore((state) => state.userId);
-  const setPosition = useUserStore((state) => state.setPosition);
+
+  const connectSocket = useSessionStore((state) => state.connectSocket);
+  const disconnectSocket = useSessionStore((state) => state.disconnectSocket);
+  const setLocation = useSessionStore((state) => state.setLocation);
 
   const fetchNodes = useNodeStore((state) => state.fetchNodes);
 
@@ -22,11 +26,26 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
     setScreen("login");
   }
 
+  useEffect(() => {
+    console.warn("Calling connectSocket")
+    connectSocket();
+    return () => {
+      console.warn("Calling disconnectSocket in cleanup")
+      disconnectSocket();
+    }
+  }, [connectSocket]);
+
   // Update stored position when position changes
   useEffect(() => {
     // Don't update if it wasn't null and is now?
-    setPosition(position);
-  }, [position, setPosition]);
+    // console.warn("position update triggered useEffect");
+    if (!position) {
+      console.warn("\t!position. skipping");
+      return;
+    }
+    // console.log("\tcalling setLocation");
+    setLocation(position);
+  }, [position, setLocation]);
 
   // Fetch nodes when position changes (this effectively is a timer)
   useEffect(() => {
