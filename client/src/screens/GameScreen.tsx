@@ -7,6 +7,7 @@ import { ScreenHandler } from "../types";
 import { useNodeStore } from "../stores/nodeStore";
 import { LogoutButton } from "../components/LogoutButton";
 import { useSessionStore } from "../stores/sessionStore";
+import { connectSocket, disconnectSocket, setLocation } from "../utils/sockets";
 
 
 export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
@@ -14,10 +15,6 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
 
   const username = useUserStore((state) => state.username);
   const userId = useUserStore((state) => state.userId);
-
-  const connectSocket = useSessionStore((state) => state.connectSocket);
-  const disconnectSocket = useSessionStore((state) => state.disconnectSocket);
-  const setLocation = useSessionStore((state) => state.setLocation);
 
   const fetchNodes = useNodeStore((state) => state.fetchNodes);
 
@@ -33,7 +30,7 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
       console.warn("Calling disconnectSocket in cleanup")
       disconnectSocket();
     }
-  }, [connectSocket]);
+  }, []);
 
   // Update stored position when position changes
   useEffect(() => {
@@ -45,7 +42,7 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
     }
     // console.log("\tcalling setLocation");
     setLocation(position);
-  }, [position, setLocation]);
+  }, [position]);
 
   // Fetch nodes when position changes (this effectively is a timer)
   useEffect(() => {
