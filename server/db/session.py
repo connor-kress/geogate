@@ -48,3 +48,10 @@ async def update_game_session_position(
     WHERE user_id = $3;
     """
     await conn.execute(query, pos.lon, pos.lat, user_id)
+
+
+async def remove_game_session(conn: Connection, user_id: int) -> None:
+    query = """
+    DELETE FROM game_sessions WHERE user_id = $1
+    """
+    await conn.execute(query, user_id)
