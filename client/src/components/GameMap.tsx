@@ -1,16 +1,12 @@
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { copyCoordsToClipboard } from "../utils/coords"
 import { Coords } from "../types";
 import { getResourceIcon, userIcon } from "../icons";
 import { useEffect } from "react";
 import { useUserStore } from "../stores/userStore";
 import { useNodeStore } from "../stores/nodeStore";
-import 'leaflet/dist/leaflet.css';
 import { useSessionStore } from "../stores/sessionStore";
-
-async function copyCoordsToClipboard(coords: Coords) {
-  const coordsMsg = `${coords.lat}, ${coords.lon}`;
-  await navigator.clipboard.writeText(coordsMsg);
-}
+import 'leaflet/dist/leaflet.css';
 
 export function GameMap() {
   const username = useUserStore((state) => state.username);

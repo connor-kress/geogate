@@ -13,3 +13,9 @@ export function getRandomCoordinates(
     lon: lon + lonOffset
   };
 }
+
+export async function copyCoordsToClipboard(coords: Coords) {
+  const coordsMsg = `${coords.lat}, ${coords.lon}`;
+  await navigator.clipboard.writeText(coordsMsg);
+}
+
