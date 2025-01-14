@@ -2,7 +2,7 @@ import { insertResourceNode } from "../queries";
 import { useNodeStore } from "../stores/nodeStore";
 import { useSessionStore } from "../stores/sessionStore";
 import { getRandomNodeType } from "../types";
-import { getRandomCoordinates } from "./utils/coords";
+import { getRandomCoordinates } from "../utils/coords";
 
 export function GenRandomNodeButton() {
   const position = useSessionStore((store) => store.location);
