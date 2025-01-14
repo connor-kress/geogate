@@ -6,7 +6,11 @@ from asyncpg import UniqueViolationError
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from db.auth import get_auth_session_id, get_user_from_auth_session
-from db.session import create_game_session, update_game_session_position
+from db.session import (
+    create_game_session,
+    remove_game_session,
+    update_game_session_position,
+)
 from models import Coords
 from utils.websocket_manager import WebSocketManager
 
@@ -96,3 +100,6 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     except WebSocketDisconnect:
         print(f"Lost connection: {user.username} ({user.id})")
         await manager.disconnect(user.id)
+        async with websocket.app.state.db_pool.acquire() as conn:
+            print(f"Removing game session for {user.username} ({user.id})")
+            await remove_game_session(conn, user.id)
