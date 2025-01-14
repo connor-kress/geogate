@@ -69,6 +69,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 print("Invalid JSON passed to WebSocket by "
                       f"{user.username} ({user.id})")
                 continue
+            except RuntimeError:
+                print("Connection unexpectedly closed by "
+                      f"{user.username} ({user.id})")
+                raise WebSocketDisconnect
             if not isinstance(data, dict):
                 print("Non-object JSON passed to WebSocket by "
                       f"{user.username} ({user.id}): {data}")
