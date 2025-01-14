@@ -1,11 +1,11 @@
 import { insertResourceNode } from "../queries";
 import { useNodeStore } from "../stores/nodeStore";
-import { useUserStore } from "../stores/userStore";
+import { useSessionStore } from "../stores/sessionStore";
 import { getRandomNodeType } from "../types";
-import { getRandomCoordinates } from "../util";
+import { getRandomCoordinates } from "./utils/coords";
 
 export function GenRandomNodeButton() {
-  const position = useUserStore((store) => store.position);
+  const position = useSessionStore((store) => store.location);
   const fetchNodes = useNodeStore((store) => store.fetchNodes);
 
   async function insertRandomNode() {
