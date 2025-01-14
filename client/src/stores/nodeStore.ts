@@ -19,7 +19,7 @@ export const useNodeStore = create<NodeStoreState>((set) => ({
 
     set({ isLoading: true, error: null });
     try {
-      console.log(`Fetching coords ${userPos.lat}, ${userPos.lon}`);
+      // console.log(`Fetching coords ${userPos.lat}, ${userPos.lon}`);
       const newNodes = await fetchResourceNodes(userPos);
       set({ nodes: newNodes || [] });
     } catch (err) {

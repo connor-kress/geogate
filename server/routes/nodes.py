@@ -26,7 +26,7 @@ async def get_nodes(lat: float, lon: float, request: Request) -> list[ResourceNo
     pool: Pool = request.app.state.db_pool
     async with pool.acquire() as conn:
         nodes = await get_nodes_within_radius(conn, coords, radius)
-    print(f"Fetched {len(nodes)} nodes around {coords}")
+    # print(f"Fetched {len(nodes)} nodes around {coords}")
     return nodes
 
 
@@ -40,5 +40,5 @@ async def post_node(body: NodeCreate, request: Request):
     pool: Pool = request.app.state.db_pool
     async with pool.acquire() as conn:
         node_id = await insert_resource_node(conn, body.node_type, body.coords)
-    print(f"Inserted node (id={node_id}) at {body.coords}")
+    # print(f"Inserted node (id={node_id}) at {body.coords}")
     return {"id": node_id}
