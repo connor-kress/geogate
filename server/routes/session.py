@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from db.auth import get_auth_session_id, get_user_from_auth_session
 from db.session import (
     create_game_session,
+    get_game_session,
     remove_game_session,
     update_game_session_position,
 )
@@ -35,7 +36,8 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     cookies = websocket.headers.get("cookie")
     session_token = parse_session_token_cookie(cookies)
     if session_token is None:
-        await websocket.close(code=1008)  # Policy violation
+        # Policy violation
+        await websocket.close(code=1008, reason="No session_token cookie")
         print("WebSocket closing because of no session_token cookie")
         return
     token_hash = base64.b64encode(
@@ -45,8 +47,14 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     async with websocket.app.state.db_pool.acquire() as conn:
         user = await get_user_from_auth_session(conn, token_hash)
         auth_session_id = await get_auth_session_id(conn, token_hash)
+        if user is not None:
+            game_session = await get_game_session(conn, user.id)
+            if game_session is not None:
+                await websocket.close(code=1008, reason="Existing game session")
+                print("WebSocket closing because of existing game session")
+
     if user is None or auth_session_id is None:
-        await websocket.close(code=1008)
+        await websocket.close(code=1008, reason="Invalid session token cookie")
         print("WebSocket closing because of invalid session_token cookie")
         return
     await manager.connect(user.id, websocket)

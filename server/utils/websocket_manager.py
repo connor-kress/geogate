@@ -10,7 +10,9 @@ class WebSocketManager:
         if user_id in self.connections:
             old_websocket = self.connections[user_id]
             try:
-                await old_websocket.close(code=1000)
+                await old_websocket.close(
+                    code=1000, reason="Superseded by a new connection"
+                )
                 # RuntimeError is raised by uvicorn during handling of
                 # starlette.websockets.WebSocketDisconnect
                 # or websockets.exceptions.ConnectionClosedError
@@ -25,7 +27,9 @@ class WebSocketManager:
             return
         websocket = self.connections[user_id]
         try:
-            await websocket.close(code=1000)
+            await websocket.close(
+                code=1000, reason="User disconnected or session ended"
+            )
         except RuntimeError:
             # print(f"WebSocket for user {user_id} was already closed")
             pass
