@@ -15,10 +15,6 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
   const userId = useUserStore((state) => state.userId);
   const position = useSessionStore((state) => state.location);
 
-  if (!position) {
-    return <h2 className="text-xl font-bold m-2">Locating Position...</h2>;
-  }
-
   return (
     <>
       <div className="flex flex-row gap-1 m-1">
@@ -30,7 +26,11 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
         </p>
         <WebSocketIndicator />
       </div>
-      <GameMap />
+      {position ? (
+        <GameMap />
+      ) : (
+        <h2 className="text-xl font-bold m-2">Locating Position...</h2>
+      )}
     </>
   );
 }
