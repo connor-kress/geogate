@@ -34,7 +34,8 @@ class WebSocketManager:
             # print(f"WebSocket for user {user_id} was already closed")
             pass
         finally:
-            del self.connections[user_id]
+            # Race conditions can cause the key to be already deleted
+            self.connections.pop(user_id, None)
 
     async def send_message(self, message: str, user_id: int):
         if user_id in self.connections:
