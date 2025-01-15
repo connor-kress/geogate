@@ -70,7 +70,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                       f"{user.username} ({user.id})")
                 continue
             except RuntimeError:
-                print("Connection unexpectedly closed by "
+                print("Connection unexpectedly closed: "
                       f"{user.username} ({user.id})")
                 raise WebSocketDisconnect
             if not isinstance(data, dict):
