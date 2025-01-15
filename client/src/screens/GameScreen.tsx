@@ -5,6 +5,7 @@ import { ScreenHandler } from "../types";
 import { LogoutButton } from "../components/LogoutButton";
 import { useSessionStore } from "../stores/sessionStore";
 import { useSessionConnection } from "../hooks/useSessionConnection";
+import { WebSocketIndicator } from "../components/WebSocketIndicator";
 
 
 export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
@@ -27,6 +28,7 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
         <p className="p-1 text-zinc-400">
           User: {username ? username : "No user"} ({userId ? userId : "No id"})
         </p>
+        <WebSocketIndicator />
       </div>
       <GameMap />
     </>
