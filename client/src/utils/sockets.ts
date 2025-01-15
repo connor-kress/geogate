@@ -1,26 +1,33 @@
 import { useSessionStore } from "../stores/sessionStore";
 import { Coords } from "../types";
 
-export function setLocation (newLocation: Coords | null) {
-  // Maybe don't update location if it isn't changed
+export function setLocation(newLocation: Coords | null) {
+  // Maybe don't update location if it hasn't changed
   const setStoreLocation = useSessionStore.getState().setLocation;
   const socket = useSessionStore.getState().socket;
   setStoreLocation(newLocation);
+  const message = { location: newLocation };
   if (socket && socket.readyState === WebSocket.OPEN) {
-    const message = { location: newLocation };
     socket.send(JSON.stringify(message));
   } else {
-    console.warn("WebSocket is not open. Location not sent.");
-    connectSocket();
+    console.warn("Location not sent as WebSocket is not open. Retrying");
+    connectSocket((socket) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(message));
+      } else {
+        console.warn("Failed to send location even after reconnecting");
+      }
+    });
   }
 }
 
-export function connectSocket() {
+export function connectSocket(onConnected?: (s: WebSocket) => void) {
   const setSocket = useSessionStore.getState().setSocket;
   const socketUrl = "ws://localhost:8000/session/ws";
   const socket = new WebSocket(socketUrl);
   socket.onopen = () => {
     console.log("WebSocket connected");
+    if (onConnected) onConnected(socket);
   };
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);

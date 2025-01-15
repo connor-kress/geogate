@@ -84,6 +84,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                       f"{user.username} ({user.id}): {data}")
                 continue
             if not isinstance(location, dict):
+                # Handle null location update
                 print("Invalid location passed to WebSocket by "
                       f"{user.username} ({user.id}): {location}")
                 continue
