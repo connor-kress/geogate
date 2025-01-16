@@ -1,15 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS postgis;
-
-CREATE TABLE resource_nodes (
-    id SERIAL PRIMARY KEY,
-    node_type TEXT NOT NULL,
-    location GEOGRAPHY(Point, 4326),
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
-
--- Add a spatial index to optimize geospatial queries
-CREATE INDEX idx_location ON resource_nodes USING GIST(location);
-
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
@@ -42,3 +30,19 @@ CREATE TABLE game_sessions (
 
 -- Create index for faster session token lookups
 CREATE INDEX idx_auth_sessions_token_hash ON auth_sessions(session_token_hash);
+
+-- Extension for geospatial data
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE TABLE resource_nodes (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    node_type TEXT NOT NULL,
+    location GEOGRAPHY(Point, 4326),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add a spatial index to optimize geospatial queries
+CREATE INDEX idx_location ON resource_nodes USING GIST(location);
