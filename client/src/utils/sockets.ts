@@ -1,11 +1,10 @@
 import { useSessionStore } from "../stores/sessionStore";
 import { Coords } from "../types";
 
-export function setLocation(newLocation: Coords | null) {
+export function setAndStoreLocation(newLocation: Coords | null) {
   // Maybe don't update location if it hasn't changed
-  const setStoreLocation = useSessionStore.getState().setLocation;
-  const socket = useSessionStore.getState().socket;
-  setStoreLocation(newLocation);
+  const { setLocation, socket } = useSessionStore.getState();
+  setLocation(newLocation);
   const message = {
     type: "location_update",
     data: newLocation,

@@ -1,12 +1,11 @@
-import { connectSocket, disconnectSocket, setLocation } from "../utils/sockets";
+import { connectSocket, disconnectSocket, setAndStoreLocation } from "../utils/sockets";
 import { useEffect } from "react";
 import { useLocation } from "./useLocation";
 import { useNodeStore } from "../stores/nodeStore";
+import { fetchAndStoreResourceNodes } from "../utils/nodes";
 
 export function useSessionConnection() {
   const { position } = useLocation();
-
-  const fetchNodes = useNodeStore((state) => state.fetchNodes);
 
   useEffect(() => {
     console.warn("Calling connectSocket")
@@ -20,9 +19,9 @@ export function useSessionConnection() {
   // Update stored position when position changes and fetch nodes
   useEffect(() => {
     // console.log("\tcalling setLocation");
-    setLocation(position);
+    setAndStoreLocation(position);
 
     // console.log("\tcalling fetchNodes");
-    fetchNodes(position);
+    fetchAndStoreResourceNodes();
   }, [position]);
 }
