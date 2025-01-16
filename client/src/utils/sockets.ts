@@ -6,7 +6,10 @@ export function setLocation(newLocation: Coords | null) {
   const setStoreLocation = useSessionStore.getState().setLocation;
   const socket = useSessionStore.getState().socket;
   setStoreLocation(newLocation);
-  const message = { location: newLocation };
+  const message = {
+    type: "location_update",
+    data: { location: newLocation },
+  };
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(message));
   } else {

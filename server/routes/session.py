@@ -2,17 +2,10 @@ import base64
 import hashlib
 from json.decoder import JSONDecodeError
 from typing import Optional
-from asyncpg import UniqueViolationError
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from pydantic import ValidationError
 from db.auth import get_auth_session_id, get_user_from_auth_session
-from db.session import (
-    create_game_session,
-    get_game_session,
-    remove_game_session,
-    update_game_session_position,
-)
-from models import Coords
+from db.session import get_game_session, remove_game_session
+from routes.handlers.location import handle_location_update
 from utils.websocket_manager import WebSocketManager
 
 router = APIRouter()
@@ -64,7 +57,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         created_session = False
         while True:
             try:
-                data = await websocket.receive_json()
+                payload = await websocket.receive_json()
             except JSONDecodeError:
                 print("Invalid JSON passed to WebSocket by "
                       f"{user.username} ({user.id})")
@@ -73,43 +66,27 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 print("Connection unexpectedly closed: "
                       f"{user.username} ({user.id})")
                 raise WebSocketDisconnect
-            if not isinstance(data, dict):
+            if not isinstance(payload, dict):
                 print("Non-object JSON passed to WebSocket by "
-                      f"{user.username} ({user.id}): {data}")
+                      f"{user.username} ({user.id}): {payload}")
                 continue
-            # Handle different message types here
-            location = data.get("location")
-            if location is None:
-                print("No location passed to WebSocket by "
-                      f"{user.username} ({user.id}): {data}")
+            message_type = payload.get("type")
+            data = payload.get("data")
+            if message_type is None:
+                print("No type field in message from "
+                      f"{user.username} ({user.id})")
                 continue
-            if not isinstance(location, dict):
-                # Handle null location update
-                print("Invalid location passed to WebSocket by "
-                      f"{user.username} ({user.id}): {location}")
-                continue
-            try:
-                location_obj = Coords.model_validate(location)
-            except ValidationError:
-                print("Invalid location passed to WebSocket by "
-                      f"{user.username} ({user.id}): {location}")
-                continue
-            async with websocket.app.state.db_pool.acquire() as conn:
-                if created_session:
-                    print(f"Updating game session: {user.username} ({user.id})")
-                    await update_game_session_position(conn, user.id,
-                                                       location_obj)
-                else:
-                    print(f"Creating game session: {user.username} ({user.id})")
-                    try:
-                        await create_game_session(conn, user.id,
-                                                  auth_session_id, location_obj)
-                    except UniqueViolationError:
-                        await update_game_session_position(
-                            conn, user.id, location_obj
-                        )
-                        print("\tFound existing game session")
+            if message_type == "location_update":
+                if await handle_location_update(
+                    websocket, user, data, auth_session_id, created_session
+                ):
                     created_session = True
+            elif message_type == "test_type":
+                print("Test type message recieved from "
+                      f"{user.username} ({user.id})")
+            else:
+                print(f"Unknown message type {message_type} from "
+                      f"{user.username} ({user.id})")
     except WebSocketDisconnect:
         print(f"Lost connection: {user.username} ({user.id})")
         await manager.disconnect(user.id)
