@@ -32,3 +32,18 @@ export function disconnectSocket() {
     setSocket(null);
   }
 }
+
+export function sendMessage(message: object) {
+  const { socket } = useSessionStore.getState();
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error("WebSocket is not connected or not ready to send messages.");
+    return;
+  }
+  try {
+    const jsonString = JSON.stringify(message);
+    socket.send(jsonString);
+    console.log("Message sent to server:", message);
+  } catch (error) {
+    console.error("Failed to send WebSocket message:", error);
+  }
+}
