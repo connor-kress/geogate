@@ -4,7 +4,7 @@ from models import Coords, NodeType, ResourceNode
 
 
 async def get_nodes_within_radius(
-    conn: Connection, coords: Coords, radius: float
+    conn: Connection, user_id: int, coords: Coords, radius: float
 ):
     """Radius is in meters."""
     query = """
@@ -17,13 +17,14 @@ async def get_nodes_within_radius(
     FROM
         resource_nodes
     WHERE
+        user_id = $1 AND
         ST_DWithin(
             location,
-            ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
-            $3
+            ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography,
+            $4
         );
     """
-    rows = await conn.fetch(query, coords.lon, coords.lat, radius)
+    rows = await conn.fetch(query, user_id, coords.lon, coords.lat, radius)
     return [
         ResourceNode(
             id=row["id"],
@@ -37,17 +38,19 @@ async def get_nodes_within_radius(
 
 
 async def insert_resource_node(
-    conn: Connection, node_type: NodeType, coords: Coords
+    conn: Connection, user_id: int, node_type: NodeType, coords: Coords
 ) -> int:
     """Inserts a new resource node into the database and
     returns the ID of the newly created resource node.
     """
     query = """
-    INSERT INTO resource_nodes (node_type, location)
-    VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326))
+    INSERT INTO resource_nodes (user_id, node_type, location)
+    VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326))
     RETURNING id;
     """
-    res = await conn.fetchval(query, node_type.value, coords.lon, coords.lat)
+    res = await conn.fetchval(
+        query, user_id, node_type.value, coords.lon, coords.lat
+    )
     if not isinstance(res, int):
         raise HTTPException(
             status_code=500,
