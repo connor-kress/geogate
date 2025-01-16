@@ -8,7 +8,7 @@ export function setLocation(newLocation: Coords | null) {
   setStoreLocation(newLocation);
   const message = {
     type: "location_update",
-    data: { location: newLocation },
+    data: newLocation,
   };
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(message));
