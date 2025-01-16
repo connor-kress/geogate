@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from db.auth import get_auth_session_id, get_user_from_auth_session
 from db.session import get_game_session, remove_game_session
+from routes.handlers.get_resource_nodes import handle_get_resource_nodes
 from routes.handlers.location import handle_location_update
 from utils.hashing import hash_sha256
 from utils.websocket_manager import WebSocketManager
@@ -80,7 +81,8 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 ):
                     created_session = True
             elif message_type == "get_resource_nodes":
-                print("Test type message recieved from "
+                await handle_get_resource_nodes(websocket, user)
+                print("Sent resource nodes to "
                       f"{user.username} ({user.id})")
             else:
                 print(f"Unknown message type {message_type} from "
