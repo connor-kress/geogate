@@ -51,6 +51,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         return
     await manager.connect(user.id, websocket)
     print(f"Added connection: {user.username} ({user.id})")
+    await handle_get_resource_nodes(websocket, user)
+    print("Sent resource nodes to "
+          f"{user.username} ({user.id})")
 
     try:
         created_session = False
