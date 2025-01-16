@@ -46,3 +46,6 @@ CREATE TABLE resource_nodes (
 
 -- Add a spatial index to optimize geospatial queries
 CREATE INDEX idx_location ON resource_nodes USING GIST(location);
+
+-- Add a user_id index to optimize user based queries
+CREATE INDEX idx_user_id ON resource_nodes (user_id);
