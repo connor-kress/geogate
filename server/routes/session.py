@@ -42,6 +42,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             if game_session is not None:
                 await websocket.close(code=1008, reason="Existing game session")
                 print("WebSocket closing because of existing game session")
+                return
 
     if user is None or auth_session_id is None:
         await websocket.close(code=1008, reason="Invalid session token cookie")
@@ -84,8 +85,11 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             else:
                 print(f"Unknown message type {message_type} from "
                       f"{user.username} ({user.id})")
-    except WebSocketDisconnect:
-        print(f"Lost connection: {user.username} ({user.id})")
+    except (WebSocketDisconnect, Exception) as err:
+        if isinstance(err, WebSocketDisconnect):
+            print(f"Lost connection: {user.username} ({user.id})")
+        else:
+            print(f"Unexpected error for {user.username} ({user.id}): {err}")
         await manager.disconnect(user.id)
         async with websocket.app.state.db_pool.acquire() as conn:
             print(f"Removing game session for {user.username} ({user.id})")

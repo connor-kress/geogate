@@ -13,7 +13,7 @@ async def handle_location_update(
     """Returns new `created_session` value or `None` to not update."""
     if location is None:
         print("No location passed to WebSocket by "
-              f"{user.username} ({user.id}): {location}")
+              f"{user.username} ({user.id})")
         return
     if not isinstance(location, dict):
         # Handle null location update
