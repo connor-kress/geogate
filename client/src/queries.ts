@@ -2,7 +2,7 @@ import { useUserStore } from "./stores/userStore";
 import { Coords, NodeType, ResourceNode } from "./types";
 
 export async function fetchResourceNodes(): Promise<ResourceNode[] | null> {
-  const userId = useUserStore.getState().userId;
+  const { userId } = useUserStore.getState();
   const url = `http://localhost:8000/nodes?user_id=${userId}`;
   try {
     const response = await fetch(url);
@@ -20,7 +20,7 @@ export async function fetchResourceNodes(): Promise<ResourceNode[] | null> {
 export async function insertResourceNode(
   coords: Coords, nodeType: NodeType
 ): Promise<number | null> {
-  const userId = useUserStore.getState().userId;
+  const { userId } = useUserStore.getState();
   const url = `http://localhost:8000/nodes`;
   const body = JSON.stringify({ userId, coords, nodeType });
   try {

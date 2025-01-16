@@ -24,7 +24,7 @@ export function setAndStoreLocation(newLocation: Coords | null) {
 }
 
 export function connectSocket(onConnected?: (s: WebSocket) => void) {
-  const setSocket = useSessionStore.getState().setSocket;
+  const { setSocket } = useSessionStore.getState();
   const socketUrl = "ws://localhost:8000/session/ws";
   const socket = new WebSocket(socketUrl);
   socket.onopen = () => {
@@ -49,8 +49,7 @@ export function connectSocket(onConnected?: (s: WebSocket) => void) {
 }
 
 export function disconnectSocket() {
-  const socket = useSessionStore.getState().socket;
-  const setSocket = useSessionStore.getState().setSocket;
+  const { socket, setSocket } = useSessionStore.getState()
   if (socket) {
     socket.close(1000, "User disconnected");
     setSocket(null);
