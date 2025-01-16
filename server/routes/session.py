@@ -1,11 +1,10 @@
-import base64
-import hashlib
 from json.decoder import JSONDecodeError
 from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from db.auth import get_auth_session_id, get_user_from_auth_session
 from db.session import get_game_session, remove_game_session
 from routes.handlers.location import handle_location_update
+from utils.hashing import hash_sha256
 from utils.websocket_manager import WebSocketManager
 
 router = APIRouter()
@@ -33,9 +32,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         await websocket.close(code=1008, reason="No session_token cookie")
         print("WebSocket closing because of no session_token cookie")
         return
-    token_hash = base64.b64encode(
-        hashlib.sha256(session_token.encode()).digest()
-    ).decode()
+    token_hash = hash_sha256(session_token)
 
     async with websocket.app.state.db_pool.acquire() as conn:
         user = await get_user_from_auth_session(conn, token_hash)

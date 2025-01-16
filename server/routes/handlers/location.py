@@ -1,9 +1,7 @@
-
-from typing import Any, Optional
 from asyncpg import UniqueViolationError
 from fastapi import WebSocket
 from pydantic import ValidationError
-
+from typing import Any, Optional
 from db.session import create_game_session, update_game_session_position
 from models import Coords, User
 

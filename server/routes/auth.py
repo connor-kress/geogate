@@ -1,5 +1,3 @@
-import base64
-import hashlib
 import secrets
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -16,6 +14,7 @@ from db.auth import (
     insert_user,
 )
 from models import User
+from utils.hashing import hash_sha256
 
 router = APIRouter()
 ph = PasswordHasher()
@@ -64,9 +63,7 @@ async def login(login_req: LoginRequest, request: Request, response: Response):
 
             # Generate session token
             session_token = secrets.token_urlsafe(32)
-            token_hash = base64.b64encode(
-                hashlib.sha256(session_token.encode()).digest()
-            ).decode()
+            token_hash = hash_sha256(session_token)
 
             # Store session
             session_length = timedelta(days=30)
@@ -95,14 +92,13 @@ async def login(login_req: LoginRequest, request: Request, response: Response):
         print("[ERROR]", err)
         raise HTTPException(status_code=500, detail=str(err))
 
+
 @router.post("/logout")
 async def logout(request: Request, response: Response):
     session_token = request.cookies.get("session_token")
     if not session_token:
         raise HTTPException(status_code=401, detail="No session token")
-    token_hash = base64.b64encode(
-        hashlib.sha256(session_token.encode()).digest()
-    ).decode()
+    token_hash = hash_sha256(session_token)
     try:
         async with request.app.state.db_pool.acquire() as conn:
             await delete_auth_session(conn, token_hash)
@@ -116,7 +112,7 @@ async def logout(request: Request, response: Response):
         return {"message": "Logged out successfully"}
     except Exception as err:
         print("[ERROR]", err)
-        raise HTTPException(status_code=500, detail="Logout failed")
+        raise HTTPException(status_code=500, detail=str(err))
 
 
 @router.get("/verify-session")
@@ -124,9 +120,7 @@ async def verify_session(request: Request) -> User:
     session_token = request.cookies.get("session_token")
     if not session_token:
         raise HTTPException(status_code=401, detail="No session token")
-    token_hash = base64.b64encode(
-        hashlib.sha256(session_token.encode()).digest()
-    ).decode()
+    token_hash = hash_sha256(session_token)
     try:
         async with request.app.state.db_pool.acquire() as conn:
             # Fetch and verify the session from the database
@@ -137,4 +131,4 @@ async def verify_session(request: Request) -> User:
             return user
     except Exception as err:
         print("[ERROR]", err)
-        raise HTTPException(status_code=401, detail=str(err))
+        raise HTTPException(status_code=500, detail=str(err))
