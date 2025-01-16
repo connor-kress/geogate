@@ -1,3 +1,4 @@
+from asyncio import IncompleteReadError
 from json.decoder import JSONDecodeError
 from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -62,6 +63,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 payload = await websocket.receive_json()
             except JSONDecodeError:
                 print("Invalid JSON passed to WebSocket by "
+                      f"{user.username} ({user.id})")
+                continue
+            except IncompleteReadError:
+                print("Incomplete read error from "
                       f"{user.username} ({user.id})")
                 continue
             except RuntimeError:
