@@ -1,3 +1,4 @@
+import { handleMessage } from "../handlers/socketHandlers";
 import { useSessionStore } from "../stores/sessionStore";
 
 export function connectSocket(onConnected?: (s: WebSocket) => void) {
@@ -11,6 +12,7 @@ export function connectSocket(onConnected?: (s: WebSocket) => void) {
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     console.log("Message received from server:", data);
+    handleMessage(data);
     // Handle incoming messages
   };
   socket.onclose = (event) => {

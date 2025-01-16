@@ -15,8 +15,10 @@ export type Coords = {
 
 export type ResourceNode = {
   id: number,
+  userId: number,
   nodeType: NodeType,
   coords: Coords,
+  createdAt: Date,
 };
 
 export enum NodeType {

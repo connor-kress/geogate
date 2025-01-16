@@ -1,8 +1,8 @@
 import { insertResourceNode } from "../api/http/resourceNodes";
+import { requestResourceNodes } from "../api/websocket/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
 import { getRandomNodeType } from "../types";
 import { getRandomCoordinates } from "../utils/coords";
-import { fetchAndStoreResourceNodes } from "../utils/nodes";
 
 export function GenRandomNodeButton() {
   const position = useSessionStore((store) => store.location);
@@ -18,7 +18,7 @@ export function GenRandomNodeButton() {
       console.error('No returned node id');
     } else {
       console.log(`Successfully inserted node (id: ${nodeId})`);
-      fetchAndStoreResourceNodes();
+      requestResourceNodes();
     }
   }
 
