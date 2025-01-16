@@ -1,4 +1,4 @@
-import { insertResourceNode } from "../queries";
+import { insertResourceNode } from "../api/http/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
 import { getRandomNodeType } from "../types";
 import { getRandomCoordinates } from "../utils/coords";

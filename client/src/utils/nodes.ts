@@ -1,4 +1,4 @@
-import { fetchResourceNodes } from "../queries";
+import { fetchResourceNodes } from "../api/http/resourceNodes";
 import { useNodeStore } from "../stores/nodeStore";
 
 export async function fetchAndStoreResourceNodes() {

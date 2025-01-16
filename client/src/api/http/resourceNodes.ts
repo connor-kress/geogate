@@ -1,5 +1,5 @@
-import { useUserStore } from "./stores/userStore";
-import { Coords, NodeType, ResourceNode } from "./types";
+import { useUserStore } from "../../stores/userStore";
+import { Coords, NodeType, ResourceNode } from "../../types";
 
 export async function fetchResourceNodes(): Promise<ResourceNode[] | null> {
   const { userId } = useUserStore.getState();
