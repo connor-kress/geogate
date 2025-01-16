@@ -8,28 +8,35 @@ export function connectSocket(onConnected?: (s: WebSocket) => void) {
     return;
   }
   setConnecting(true);
-  const socketUrl = "ws://localhost:8000/session/ws";
-  const socket = new WebSocket(socketUrl);
-  socket.onopen = () => {
-    console.log("WebSocket connected");
-    setConnecting(false);
-    if (onConnected) onConnected(socket);
-  };
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log("Message received:", data);
-    handleMessage(data);
-  };
-  socket.onclose = (event) => {
-    console.log(
-      `WebSocket disconnected: code=${event.code}, reason=${event.reason}`);
+  try {
+    const socketUrl = "ws://localhost:8000/session/ws";
+    const socket = new WebSocket(socketUrl);
+    socket.onopen = () => {
+      console.log("WebSocket connected");
+      setConnecting(false);
+      if (onConnected) onConnected(socket);
+    };
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Message received:", data);
+      handleMessage(data);
+    };
+    socket.onclose = (event) => {
+      console.log(
+        `WebSocket disconnected: code=${event.code}, reason=${event.reason}`);
+      setSocket(null);
+    };
+    socket.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      setConnecting(false);
+      socket.close();
+    }
+    setSocket(socket);
+  } catch (error) {
     setSocket(null);
-  };
-  socket.onerror = (err) => {
-    console.error("WebSocket error:", err);
-    socket.close();
+    setConnecting(false);
+    throw error;
   }
-  setSocket(socket);
 }
 
 export function disconnectSocket() {

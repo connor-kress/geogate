@@ -12,7 +12,6 @@ export function useLocation() {
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
         };
-        console.log("User location:", newCoords);
         setPosition(newCoords);
       },
       (error) => {
