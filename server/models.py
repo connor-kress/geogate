@@ -26,8 +26,10 @@ NODE_TYPE_WEIGHTS = {
 
 class ResourceNode(BaseModel):
     id: int
+    user_id: int = Field(..., alias="userId")
     node_type: NodeType = Field(..., alias="nodeType")
     coords: Coords
+    created_at: datetime = Field(..., alias="createdAt")
 
     class Config:
         populate_by_name = True

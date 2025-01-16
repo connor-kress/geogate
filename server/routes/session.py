@@ -78,7 +78,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                     websocket, user, data, auth_session_id, created_session
                 ):
                     created_session = True
-            elif message_type == "test_type":
+            elif message_type == "get_resource_nodes":
                 print("Test type message recieved from "
                       f"{user.username} ({user.id})")
             else:

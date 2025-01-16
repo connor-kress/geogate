@@ -2,7 +2,11 @@ import random
 from asyncpg import Pool
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, Field
-from db.nodes import get_nodes_within_radius, insert_resource_node
+from db.nodes import (
+    get_resource_nodes_within_radius,
+    get_resource_nodes_of_user,
+    insert_resource_node,
+)
 from models import NODE_TYPE_WEIGHTS, Coords, NodeType, ResourceNode
 
 router = APIRouter()
@@ -15,21 +19,34 @@ def get_random_node_type() -> NodeType:
 
 
 @router.get("")
-async def get_nodes(
-    user_id: int, lat: float, lon: float, request: Request
+async def get_nodes_by_user(
+    user_id: int, request: Request
 ) -> list[ResourceNode]:
-    # user_id is temporary and will be refactored
-    coords = Coords(lat=lat, lon=lon)
-    radius = 1000  # 1km
+    # TODO: Remove temporary route (unsafe)
     pool: Pool = request.app.state.db_pool
     async with pool.acquire() as conn:
-        nodes = await get_nodes_within_radius(conn, user_id, coords, radius)
+        nodes = await get_resource_nodes_of_user(conn, user_id)
+    # print(f"Fetched {len(nodes)} nodes of user ({user_id})")
+    return nodes
+
+
+@router.get("by_radius/")
+async def get_nodes_by_radius(
+        lat: float, lon: float, radius: float, request: Request
+) -> list[ResourceNode]:
+    """A development route for fetching all resource nodes
+    within a radius (in meters) of a location (admin only).
+    """
+    # TODO: Check for admin user session token
+    coords = Coords(lat=lat, lon=lon)
+    pool: Pool = request.app.state.db_pool
+    async with pool.acquire() as conn:
+        nodes = await get_resource_nodes_within_radius(conn, coords, radius)
     # print(f"Fetched {len(nodes)} nodes around {coords}")
     return nodes
 
 
 class NodeCreate(BaseModel):
-    # temporary and will be refactored
     user_id: int = Field(..., alias="userId")
     node_type: NodeType = Field(..., alias="nodeType")
     coords: Coords
@@ -37,6 +54,8 @@ class NodeCreate(BaseModel):
 
 @router.post("")
 async def post_node(body: NodeCreate, request: Request):
+    """A development route for creating a resource node (admin only)."""
+    # TODO: Check for admin user session token
     pool: Pool = request.app.state.db_pool
     async with pool.acquire() as conn:
         node_id = await insert_resource_node(

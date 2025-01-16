@@ -1,12 +1,9 @@
 import { useUserStore } from "./stores/userStore";
 import { Coords, NodeType, ResourceNode } from "./types";
 
-export async function fetchResourceNodes(
-  coords: Coords
-): Promise<ResourceNode[] | null> {
+export async function fetchResourceNodes(): Promise<ResourceNode[] | null> {
   const userId = useUserStore.getState().userId;
-  const url = "http://localhost:8000/nodes?" +
-              `user_id=${userId}&lat=${coords.lat}&lon=${coords.lon}`;
+  const url = `http://localhost:8000/nodes?user_id=${userId}`;
   try {
     const response = await fetch(url);
     if (!response.ok) {
