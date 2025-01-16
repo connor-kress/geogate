@@ -2,18 +2,23 @@ import { handleMessage } from "../handlers/socketHandlers";
 import { useSessionStore } from "../stores/sessionStore";
 
 export function connectSocket(onConnected?: (s: WebSocket) => void) {
-  const { setSocket } = useSessionStore.getState();
+  const { setSocket, connecting, setConnecting } = useSessionStore.getState();
+  if (connecting) {
+    console.log("Trying to connect to socket while connecting");
+    return;
+  }
+  setConnecting(true);
   const socketUrl = "ws://localhost:8000/session/ws";
   const socket = new WebSocket(socketUrl);
   socket.onopen = () => {
     console.log("WebSocket connected");
+    setConnecting(false);
     if (onConnected) onConnected(socket);
   };
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    console.log("Message received from server:", data);
+    console.log("Message received:", data);
     handleMessage(data);
-    // Handle incoming messages
   };
   socket.onclose = (event) => {
     console.log(
@@ -44,7 +49,7 @@ export function sendMessage(message: object) {
   try {
     const jsonString = JSON.stringify(message);
     socket.send(jsonString);
-    console.log("Message sent to server:", message);
+    console.log("Message sent:", message);
   } catch (error) {
     console.error("Failed to send WebSocket message:", error);
   }
