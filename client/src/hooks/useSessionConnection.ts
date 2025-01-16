@@ -1,8 +1,8 @@
-import { connectSocket, disconnectSocket, setAndStoreLocation } from "../utils/sockets";
+import { connectSocket, disconnectSocket } from "../utils/sockets";
 import { useEffect } from "react";
 import { useLocation } from "./useLocation";
-import { useNodeStore } from "../stores/nodeStore";
 import { fetchAndStoreResourceNodes } from "../utils/nodes";
+import { setAndStoreLocation } from "../utils/location";
 
 export function useSessionConnection() {
   const { position } = useLocation();
