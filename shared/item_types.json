@@ -1,0 +1,22 @@
+[
+  {
+    "name": "basicWood",
+    "type": "resource",
+    "displayName": "Wood"
+  },
+  {
+    "name": "basicStone",
+    "type": "resource",
+    "displayName": "Stone"
+  },
+  {
+    "name": "copperOre",
+    "type": "resource",
+    "displayName": "Copper Ore"
+  },
+  {
+    "name": "ironOre",
+    "type": "resource",
+    "displayName": "Iron Ore"
+  }
+]
