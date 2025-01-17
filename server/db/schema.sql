@@ -49,3 +49,20 @@ CREATE INDEX idx_location ON resource_nodes USING GIST(location);
 
 -- Add a user_id index to optimize user based queries
 CREATE INDEX idx_user_id ON resource_nodes (user_id);
+
+CREATE TABLE user_items (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    item_type VARCHAR(50) NOT NULL,
+    item_count INT CHECK (item_count >= 1), -- Only for items with count
+    metadata JSONB, -- Only for nonstackable items
+    CHECK (
+        (item_count IS NULL AND metadata IS NOT NULL) OR -- Nonstackable items
+        (item_count IS NOT NULL AND metadata IS NULL)    -- Items with count
+    )
+);
+
+-- Add a user_id index to optimize user based queries
+CREATE INDEX idx_user_items_user_id ON user_items (user_id);
