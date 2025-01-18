@@ -24,6 +24,7 @@ app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(nodes_router, prefix="/nodes", tags=["nodes"])
 app.include_router(session_router, prefix="/session", tags=["session"])
 
+
 @app.get("/")
 async def get_root():
     return {"message": "This is an API"}

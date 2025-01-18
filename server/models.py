@@ -54,3 +54,14 @@ class GameSession(BaseModel):
 
     class Config:
         populate_by_name = True
+
+
+class Item(BaseModel):
+    id: int
+    user_id: int = Field(..., alias="userId")
+    item_type: str = Field(..., alias="itemType")
+    item_count: Optional[str] = Field(..., alias="itemCount")
+    metadata: Optional[dict]
+
+    class Config:
+        populate_by_name = True
