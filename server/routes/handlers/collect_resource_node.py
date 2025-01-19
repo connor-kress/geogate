@@ -2,7 +2,7 @@ from typing import Any
 from asyncpg import Pool
 from fastapi import WebSocket
 from db.items import get_user_inventory, insert_or_add_items
-from db.nodes import get_resource_node, get_resource_nodes_of_user
+from db.nodes import delete_resource_node, get_resource_node, get_resource_nodes_of_user
 from models import User
 from utils.nodes import get_node_item_drops
 
@@ -28,6 +28,7 @@ async def handle_collect_resource_node(
         if node is None:
             await handle_invalid_node_id_error()
             return
+        await delete_resource_node(conn, node.id, user.id)
         new_items = get_node_item_drops(node.node_type)
         await insert_or_add_items(
             conn, user.id,
