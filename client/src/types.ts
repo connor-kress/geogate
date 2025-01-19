@@ -42,3 +42,9 @@ export type Item = {
     itemCount: number | null,
     metadata: any | null,
 }
+
+export type ItemTypeMetadata = {
+  name: string;
+  type: string;
+  displayName: string;
+};
