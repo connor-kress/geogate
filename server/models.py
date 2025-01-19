@@ -56,11 +56,18 @@ class GameSession(BaseModel):
         populate_by_name = True
 
 
+class ItemType(str, Enum):
+    BASIC_WOOD = "basicWood"
+    BASIC_STONE = "basicStone"
+    COPPER_ORE = "copperOre"
+    IRON_ORE = "ironOre"
+
+
 class Item(BaseModel):
     id: int
     user_id: int = Field(..., alias="userId")
-    item_type: str = Field(..., alias="itemType")
-    item_count: Optional[str] = Field(..., alias="itemCount")
+    item_type: ItemType = Field(..., alias="itemType")
+    item_count: Optional[int] = Field(..., alias="itemCount")
     metadata: Optional[dict]
 
     class Config:

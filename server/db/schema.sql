@@ -66,3 +66,8 @@ CREATE TABLE user_items (
 
 -- Add a user_id index to optimize user based queries
 CREATE INDEX idx_user_items_user_id ON user_items (user_id);
+
+-- Stackable items only have one entry per type (per user)
+CREATE UNIQUE INDEX unique_user_item_type_null_count
+ON user_items (user_id, item_type)
+WHERE item_count IS NOT NULL;

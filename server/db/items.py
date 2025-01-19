@@ -2,11 +2,6 @@ from typing import Optional
 from asyncpg import Connection
 from models import Item
 
-    # id: int
-    # user_id: int = Field(..., alias="userId")
-    # item_type: str = Field(..., alias="itemType")
-    # item_count: Optional[str] = Field(..., alias="itemCount")
-    # metadata: Optional[dict]
 
 async def get_items_of_user(conn: Connection, user_id: int) -> list[Item]:
     """Returns all the items associated with a given user."""
@@ -24,14 +19,14 @@ async def get_items_of_user(conn: Connection, user_id: int) -> list[Item]:
     return [Item.model_validate(dict(row)) for row in rows]
 
 
-async def insert_resource_node(
+async def insert_item(
     conn: Connection,
     user_id: int,
     item_type: str,
     item_count: Optional[int],
     metadata: Optional[dict],
 ) -> Optional[int]:
-    """Inserts a new resource node into the database and
+    """Inserts a new user item into the database and
     returns its ID.
     """
     query = """
