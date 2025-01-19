@@ -1,4 +1,5 @@
 import { useUserStore } from "../stores/userStore";
+import { ITEM_TYPE_MAP } from "../utils/items";
 
 export function InventoryView() {
   const items = useUserStore((state) => state.inventory);
@@ -15,7 +16,9 @@ export function InventoryView() {
               key={item.id}
               className="flex justify-between items-center p-2 bg-zinc-700 rounded-lg hover:bg-zinc-600 transition"
             >
-              <span className="text-zinc-200 font-medium">{item.itemType}</span>
+              <span className="text-zinc-200 font-medium">{
+                ITEM_TYPE_MAP[item.itemType].displayName
+              }</span>
               <span className="text-zinc-400">
                 {item.itemCount !== null ? item.itemCount : "N/A"}
               </span>
