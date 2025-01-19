@@ -1,6 +1,5 @@
 from typing import Optional
 from asyncpg import Connection
-from fastapi import HTTPException
 from models import Coords, NodeType, ResourceNode
 
 
@@ -114,3 +113,20 @@ async def insert_resource_node(
         query, user_id, node_type.value, coords.lon, coords.lat
     )
     return res
+
+
+async def delete_resource_node(
+    conn: Connection, node_id: int, user_id: int
+) -> None:
+    """Deletes a resource node from the database."""
+    query = """
+    DELETE FROM resource_nodes
+    WHERE id = $1
+    AND user_id = $2
+    RETURNING id;
+    """
+    res = await conn.execute(query, node_id, user_id)
+    if res == "DELETE 0":
+        raise Exception(
+            f"Node {node_id} not found or not owned by user {user_id}"
+        )
