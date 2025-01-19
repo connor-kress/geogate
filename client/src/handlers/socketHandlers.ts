@@ -1,5 +1,8 @@
-import { handleInventory } from "./inventoryHandler";
-import { handleResourceNodes } from "./resourceNodesHandler";
+import { handleInventory } from "./inventoryHandlers";
+import {
+  handleCollectResourceNodeError,
+  handleResourceNodes,
+} from "./resourceNodesHandlers";
 
 export function handleMessage(messageData: any) {
   const { type, data } = messageData;
@@ -10,6 +13,10 @@ export function handleMessage(messageData: any) {
 
     case "inventory":
       handleInventory(data);
+      break;
+
+    case "collect_resource_node_error":
+      handleCollectResourceNodeError(data);
       break;
 
     default:
