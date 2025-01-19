@@ -1,6 +1,6 @@
-import { sendMessage } from "../../utils/sockets";
+import { sendMessage } from "../../utils/socket";
 
-export async function requestResourceNodes() {
+export function requestResourceNodes() {
   const message = { "type": "get_resource_nodes" };
   sendMessage(message)
 };

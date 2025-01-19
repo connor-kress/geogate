@@ -1,6 +1,6 @@
 import { useSessionStore } from "../stores/sessionStore";
 import { Coords } from "../types";
-import { sendMessage } from "./sockets";
+import { sendMessage } from "./socket";
 
 export function setAndStoreLocation(newLocation: Coords | null) {
   // Maybe don't update location if it hasn't changed

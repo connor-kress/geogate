@@ -1,7 +1,8 @@
-import { connectSocket, disconnectSocket } from "../utils/sockets";
+import { connectSocket, disconnectSocket } from "../utils/socket";
 import { useEffect } from "react";
 import { useLocation } from "./useLocation";
 import { setAndStoreLocation } from "../utils/location";
+import { requestInventory } from "../api/websocket/inventory";
 import { requestResourceNodes } from "../api/websocket/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
 import { useNodeStore } from "../stores/nodeStore";
@@ -24,7 +25,9 @@ export function useSessionConnection() {
   // Update stored position when position changes and fetch nodes
   useEffect(() => {
     setAndStoreLocation(position);
+    requestInventory();
     requestResourceNodes();
+
     const shouldReconnect = (
       socketReadyState === WebSocket.CLOSED
       || socketReadyState === undefined
