@@ -1,4 +1,3 @@
-import random
 from asyncpg import Pool
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, Field
@@ -7,15 +6,9 @@ from db.nodes import (
     get_resource_nodes_of_user,
     insert_resource_node,
 )
-from models import NODE_TYPE_WEIGHTS, Coords, NodeType, ResourceNode
+from models import Coords, NodeType, ResourceNode
 
 router = APIRouter()
-
-
-def get_random_node_type() -> NodeType:
-    types = list(NODE_TYPE_WEIGHTS.keys())
-    weights = list(NODE_TYPE_WEIGHTS.values())
-    return random.choices(types, weights=weights, k=1)[0]
 
 
 @router.get("")

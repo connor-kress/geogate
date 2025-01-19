@@ -16,14 +16,6 @@ class NodeType(str, Enum):
     ROCK_IRON = "rockIron"
 
 
-NODE_TYPE_WEIGHTS = {
-    NodeType.TREE: 100,
-    NodeType.ROCK_BASIC: 40,
-    NodeType.ROCK_COPPER: 25,
-    NodeType.ROCK_IRON: 15,
-}
-
-
 class ResourceNode(BaseModel):
     id: int
     user_id: int = Field(..., alias="userId")
