@@ -13,6 +13,13 @@ export type Coords = {
   lon: number, // constrained by -180 <= lon <= 180
 };
 
+export enum NodeType {
+  TREE = "tree",
+  ROCK_BASIC = "rockBasic",
+  ROCK_COPPER = "rockCopper",
+  ROCK_IRON = "rockIron",
+};
+
 export type ResourceNode = {
   id: number,
   userId: number,
@@ -21,9 +28,17 @@ export type ResourceNode = {
   createdAt: Date,
 };
 
-export enum NodeType {
-  TREE = "tree",
-  ROCK_BASIC = "rockBasic",
-  ROCK_COPPER = "rockCopper",
-  ROCK_IRON = "rockIron",
-};
+export enum ItemType {
+    BASIC_WOOD = "basicWood",
+    BASIC_STONE = "basicStone",
+    COPPER_ORE = "copperOre",
+    IRON_ORE = "ironOre",
+}
+
+export type Item = {
+    id: number,
+    userId: number,
+    itemType: ItemType,
+    itemCount: number | null,
+    metadata: any | null,
+}
