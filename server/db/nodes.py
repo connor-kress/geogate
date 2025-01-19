@@ -1,3 +1,4 @@
+from typing import Optional
 from asyncpg import Connection
 from fastapi import HTTPException
 from models import Coords, NodeType, ResourceNode
@@ -69,9 +70,38 @@ async def get_resource_nodes_of_user(
     ]
 
 
+async def get_resource_node(
+        conn: Connection, node_id: int, user_id: int
+) -> Optional[ResourceNode]:
+    """Returns a resource node based on ID for a given user."""
+    query = """
+    SELECT
+        id,
+        user_id,
+        node_type,
+        ST_Y(location::geometry) AS lat,
+        ST_X(location::geometry) AS lon,
+        created_at
+    FROM resource_nodes
+    WHERE id = $1
+    AND user_id = $2;
+    """
+    row = await conn.fetchrow(query, node_id, user_id)
+    if row is None:
+        return None
+    return ResourceNode(
+        id=row["id"],
+        userId=row["user_id"],
+        nodeType=row["node_type"],
+        coords=Coords(lat=row["lat"],
+                      lon=row["lon"]),
+        createdAt=row["created_at"],
+    )
+
+
 async def insert_resource_node(
     conn: Connection, user_id: int, node_type: NodeType, coords: Coords
-) -> int:
+) -> Optional[int]:
     """Inserts a new resource node into the database and
     returns its ID.
     """
@@ -83,9 +113,4 @@ async def insert_resource_node(
     res = await conn.fetchval(
         query, user_id, node_type.value, coords.lon, coords.lat
     )
-    if not isinstance(res, int):
-        raise HTTPException(
-            status_code=500,
-            detail=f"Unexpected return on insertion: {res}",
-        )
     return res

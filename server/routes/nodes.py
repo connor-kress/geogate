@@ -1,5 +1,5 @@
 from asyncpg import Pool
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from db.nodes import (
     get_resource_nodes_within_radius,
@@ -54,5 +54,10 @@ async def post_node(body: NodeCreate, request: Request):
         node_id = await insert_resource_node(
             conn, body.user_id, body.node_type, body.coords
         )
+        if not isinstance(node_id, int):
+            raise HTTPException(
+                status_code=500,
+                detail="Unable to create node with unknown reason",
+            )
     # print(f"Inserted node (id={node_id}) at {body.coords}")
     return {"id": node_id}

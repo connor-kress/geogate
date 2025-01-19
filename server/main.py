@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from asyncpg import Pool
 from fastapi import FastAPI, Request
 from db.connection import get_db_pool
-from db.items import get_user_inventory, insert_or_add_item, insert_or_add_items
+from db.items import get_user_inventory, insert_or_add_items
 from middleware import init_middleware
 from models import NodeType
 from routes.auth import router as auth_router
