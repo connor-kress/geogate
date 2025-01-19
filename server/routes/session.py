@@ -56,6 +56,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     await handle_get_resource_nodes(websocket, user)
     print("Sent resource nodes to "
           f"{user.username} ({user.id})")
+    await handle_get_inventory(websocket, user)
+    print("Sent user inventory to "
+          f"{user.username} ({user.id})")
 
     try:
         created_session = False
