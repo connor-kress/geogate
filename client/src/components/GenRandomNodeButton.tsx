@@ -1,7 +1,7 @@
 import { insertResourceNode } from "../api/http/resourceNodes";
 import { requestResourceNodes } from "../api/websocket/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
-import { getRandomNodeType } from "../types";
+import { getRandomNodeType } from "../utils/nodes";
 import { getRandomCoordinates } from "../utils/coords";
 
 export function GenRandomNodeButton() {
