@@ -6,6 +6,7 @@ import { LogoutButton } from "../components/LogoutButton";
 import { useSessionStore } from "../stores/sessionStore";
 import { useSessionConnection } from "../hooks/useSessionConnection";
 import { WebSocketIndicator } from "../components/WebSocketIndicator";
+import { InventoryView } from "../components/InventoryView";
 
 
 export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
@@ -31,6 +32,7 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
       ) : (
         <h2 className="text-xl font-bold m-2">Locating Position...</h2>
       )}
+      <InventoryView />
     </>
   );
 }
