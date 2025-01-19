@@ -1,12 +1,13 @@
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { copyCoordsToClipboard } from "../utils/coords"
-import { Coords } from "../types";
+import { Coords, ResourceNode } from "../types";
 import { getResourceIcon, userIcon } from "../icons";
 import { useEffect } from "react";
 import { useUserStore } from "../stores/userStore";
 import { useNodeStore } from "../stores/nodeStore";
 import { useSessionStore } from "../stores/sessionStore";
 import 'leaflet/dist/leaflet.css';
+import { collectResourceNode } from "../api/websocket/resourceNodes";
 
 export function GameMap() {
   const username = useUserStore((state) => state.username);
@@ -65,6 +66,15 @@ export function GameMap() {
               onClick={async () => await copyCoordsToClipboard(node.coords)}
             >
               Copy to Clipboard
+            </button><br />
+            <button
+              className="border border-black rounded px-1 cursor-pointer hover:text-zinc-500 active:text-zinc-400 mt-1"
+              onClick={() => {
+                // popup.close();
+                collectResourceNode(node.id)
+              }}
+            >
+              Collect node
             </button>
           </Popup>
         </Marker>

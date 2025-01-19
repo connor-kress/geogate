@@ -103,7 +103,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                       f"{user.username} ({user.id})")
             elif message_type == "collect_resource_node":
                 await handle_collect_resource_node(websocket, user, data)
-                print("Collecting resource node for"
+                print("Collecting resource node for "
                       f"{user.username} ({user.id})")
             else:
                 print(f"Unknown message type {message_type} from "
