@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from asyncpg import Pool
 from fastapi import FastAPI, Request
 from db.connection import get_db_pool
-from db.items import get_user_inventory, insert_or_add_item
+from db.items import get_user_inventory, insert_or_add_item, insert_or_add_items
 from middleware import init_middleware
 from models import NodeType
 from routes.auth import router as auth_router
@@ -39,7 +39,10 @@ async def item_test(request: Request, user_id: int):
     pool: Pool = request.app.state.db_pool
     async with pool.acquire() as conn:
         new_items = get_node_item_drops(NodeType.ROCK_IRON)
-        for item_type, count in new_items:
-            await insert_or_add_item(conn, user_id, item_type, count)
+        await insert_or_add_items(
+            conn, user_id,
+            [(item_type, item_count, None)
+             for item_type, item_count in new_items]
+        )
         user_items = await get_user_inventory(conn, user_id)
     return {"newItems": new_items, "userItems": user_items}
