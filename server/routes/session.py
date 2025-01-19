@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from db.auth import get_auth_session_id, get_user_from_auth_session
 from db.session import get_game_session, remove_game_session
+from routes.handlers.collect_resource_node import handle_collect_resource_node
 from routes.handlers.get_resource_nodes import handle_get_resource_nodes
 from routes.handlers.get_inventory import handle_get_inventory
 from routes.handlers.location import handle_location_update
@@ -99,6 +100,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             elif message_type == "get_inventory":
                 await handle_get_inventory(websocket, user)
                 print("Sent user inventory to "
+                      f"{user.username} ({user.id})")
+            elif message_type == "collect_resource_node":
+                await handle_collect_resource_node(websocket, user, data)
+                print("Collecting resource node for"
                       f"{user.username} ({user.id})")
             else:
                 print(f"Unknown message type {message_type} from "
