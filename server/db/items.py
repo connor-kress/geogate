@@ -1,6 +1,6 @@
 from typing import Optional
 from asyncpg import Connection
-from models import Item
+from models import Item, ItemType
 
 
 async def get_items_of_user(conn: Connection, user_id: int) -> list[Item]:
@@ -22,9 +22,9 @@ async def get_items_of_user(conn: Connection, user_id: int) -> list[Item]:
 async def insert_or_add_item(
     conn: Connection,
     user_id: int,
-    item_type: str,
+    item_type: ItemType,
     item_count: Optional[int],
-    metadata: Optional[dict],
+    metadata: Optional[dict] = None,
 ) -> Optional[int]:
     """ Inserts or updates a user item in the database.
     If item is non-stackable, inserts a new row.
