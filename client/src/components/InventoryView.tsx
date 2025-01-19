@@ -11,7 +11,9 @@ export function InventoryView() {
         <p>Loading...</p>
       ) : (
         <ul className="space-y-2">
-          {items.map((item) => (
+          {items.sort((a, b) => 
+            a.itemType.localeCompare(b.itemType)
+           ).map((item) => (
             <li
               key={item.id}
               className="flex justify-between items-center p-2 bg-zinc-700 rounded-lg hover:bg-zinc-600 transition"
