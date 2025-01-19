@@ -3,8 +3,8 @@ from asyncpg import Connection
 from models import Item, ItemType
 
 
-async def get_items_of_user(conn: Connection, user_id: int) -> list[Item]:
-    """Returns all the items associated with a given user."""
+async def get_user_inventory(conn: Connection, user_id: int) -> list[Item]:
+    """Returns all the items in a given user's inventory."""
     query = """
     SELECT
         id,
