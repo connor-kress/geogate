@@ -1,14 +1,16 @@
-import { sendMessage } from "../../utils/socket";
+import { useSessionStore } from "../../stores/sessionStore";
 
 export function requestResourceNodes() {
+  const { socketManager } = useSessionStore.getState()
   const message = { type: "get_resource_nodes" };
-  sendMessage(message)
+  socketManager?.sendMessage(message)
 };
 
 export function collectResourceNode(node_id: number) {
+  const { socketManager } = useSessionStore.getState()
   const message = {
     type: "collect_resource_node",
     data: node_id,
   };
-  sendMessage(message)
+  socketManager?.sendMessage(message)
 }

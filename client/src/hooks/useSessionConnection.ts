@@ -1,4 +1,3 @@
-import { connectSocket, disconnectSocket } from "../utils/socket";
 import { useEffect } from "react";
 import { useLocation } from "./useLocation";
 import { setAndStoreLocation } from "../utils/location";
@@ -6,41 +5,119 @@ import { requestInventory } from "../api/websocket/inventory";
 import { requestResourceNodes } from "../api/websocket/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
 import { useNodeStore } from "../stores/nodeStore";
+import { handleInventory } from "../handlers/inventoryHandlers";
+import {
+  handleCollectResourceNodeError,
+  handleResourceNodes,
+} from "../handlers/resourceNodesHandlers";
 
 export function useSessionConnection() {
-  const { position } = useLocation();
+  const { position } = useLocation(); // Custom hook to get location
   const setNodes = useNodeStore((state) => state.setNodes);
-  const socketReadyState = useSessionStore((state) => state.socket?.readyState);
-  const connecting = useSessionStore((state) => state.connecting);
+  const socketManager = useSessionStore((state) => state.socketManager);
 
   useEffect(() => {
-    console.warn("Calling connectSocket")
-    connectSocket();
-    return () => {
-      console.warn("Calling disconnectSocket in cleanup")
-      disconnectSocket();
+    if (!socketManager) {
+      console.warn("WebSocketManager is not initialized");
+      return;
     }
-  }, []);
 
-  // Update stored position when position changes and fetch nodes
+    console.warn("Connecting WebSocket...");
+    socketManager.connect();
+
+    // Add listeners for unprompted updates
+    socketManager.addListener("resource_nodes", handleResourceNodes);
+    socketManager.addListener("inventory", handleInventory);
+    socketManager.addListener("collect_resource_node_error",
+                              handleCollectResourceNodeError);
+
+    return () => {
+      console.warn("Disconnecting WebSocket in cleanup...");
+      socketManager.disconnect();
+
+      // Remove listeners
+      socketManager.removeListener("resource_nodes", handleResourceNodes);
+      socketManager.removeListener("inventory", handleInventory);
+      socketManager.addListener("collect_resource_node_error",
+                                handleCollectResourceNodeError);
+    };
+  }, [socketManager, setNodes]);
+
+  // Update stored position and request data when position changes
   useEffect(() => {
+    if (!socketManager) {
+      console.warn("WebSocketManager is not initialized");
+      return;
+    }
+
+    console.log("Position updated:", position);
+    // Send location update to server
     setAndStoreLocation(position);
+    // Request inventory and resource nodes
     requestInventory();
     requestResourceNodes();
 
+    // Handle possible reconnection
+    const readyState = socketManager.getReadyState();
     const shouldReconnect = (
-      socketReadyState === WebSocket.CLOSED
-      || socketReadyState === undefined
-    ) && !connecting;
+      readyState === WebSocket.CLOSED
+      || readyState === null
+      || readyState === undefined
+    ) && !socketManager.getConnecting();
     // Effectively on timer when not connected
-    if (shouldReconnect) connectSocket();
-  }, [position]);
+    // Should employ more advanced management with exponential backoff
+    if (shouldReconnect) socketManager.connect();
+  }, [position, socketManager]);
 
-  // Clear resource nodes on disconnection
+  // Clear resource nodes on WebSocket disconnection
   useEffect(() => {
-    if (socketReadyState === WebSocket.CLOSED
-     || socketReadyState === undefined) {
-    setNodes([]);
+    if (!socketManager) {
+      console.warn("WebSocketManager is not initialized");
+      return;
     }
-  }, [socketReadyState])
+
+    const readyState = socketManager.getReadyState();
+    if (readyState === null || readyState === WebSocket.CLOSED) {
+      console.log("WebSocket disconnected. Clearing resource nodes...");
+      setNodes([]);
+    }
+  }, [socketManager, setNodes]);
 }
+
+// export function useSessionConnection() {
+//   const { position } = useLocation();
+//   const setNodes = useNodeStore((state) => state.setNodes);
+//   const socketReadyState = useSessionStore((state) => state.socket?.readyState);
+//   const connecting = useSessionStore((state) => state.connecting);
+//
+//   useEffect(() => {
+//     console.warn("Calling connectSocket")
+//     connectSocket();
+//     return () => {
+//       console.warn("Calling disconnectSocket in cleanup")
+//       disconnectSocket();
+//     }
+//   }, []);
+//
+//   // Update stored position when position changes and fetch nodes
+//   useEffect(() => {
+//     setAndStoreLocation(position);
+//     requestInventory();
+//     requestResourceNodes();
+//
+//     const shouldReconnect = (
+//       socketReadyState === WebSocket.CLOSED
+//       || socketReadyState === undefined
+//     ) && !connecting;
+//     // Effectively on timer when not connected
+//     if (shouldReconnect) connectSocket();
+//   }, [position]);
+//
+//   // Clear resource nodes on disconnection
+//   useEffect(() => {
+//     if (socketReadyState === WebSocket.CLOSED
+//      || socketReadyState === undefined) {
+//     setNodes([]);
+//     }
+//   }, [socketReadyState])
+// }

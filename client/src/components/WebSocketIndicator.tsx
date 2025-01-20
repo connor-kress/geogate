@@ -1,7 +1,9 @@
 import { useSessionStore } from "../stores/sessionStore";
 
 export function WebSocketIndicator() {
-  const socketReadyState = useSessionStore((state) => state.socket?.readyState);
+  const socketReadyState = useSessionStore(
+    (state) => state.socketManager?.getReadyState()
+  );
 
   function getIndicatorStyles() {
     switch (socketReadyState) {
@@ -14,7 +16,7 @@ export function WebSocketIndicator() {
       default:
         return "bg-red-500";
     }
-  };
+  }
 
   function getStatusText() {
     switch (socketReadyState) {
@@ -28,7 +30,7 @@ export function WebSocketIndicator() {
       default:
         return "Disconnected";
     }
-  };
+  }
 
   return (
     <div className="flex items-center gap-2">

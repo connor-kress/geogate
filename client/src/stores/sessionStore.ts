@@ -1,20 +1,18 @@
 import { create } from "zustand";
 import { Coords } from "../types";
+import { WebSocketManager } from "../utils/socketManager";
 
 type SessionStoreState = {
   location: Coords | null,
-  socket: WebSocket | null,
-  connecting: boolean,
+  socketManager: WebSocketManager | null,
   setLocation: (location: Coords | null) => void,
-  setSocket: (socket: WebSocket | null) => void,
-  setConnecting: (connecting: boolean) => void,
+  setSocketManager: (manager: WebSocketManager | null) => void,
 };
 
+
 export const useSessionStore = create<SessionStoreState>((set) => ({
-  location: null, // User's current location
-  socket: null, // WebSocket instance
-  connecting: false,
+  location: null,
+  socketManager: new WebSocketManager("ws://localhost:8000/session/ws"),
   setLocation: (location: Coords | null) => set({ location }),
-  setSocket: (socket: WebSocket | null) => set({ socket }),
-  setConnecting: (connecting: boolean) => set({ connecting }),
+  setSocketManager: (manager: WebSocketManager | null) => set({ socketManager: manager }),
 }));
