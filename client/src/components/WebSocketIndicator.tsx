@@ -1,12 +1,10 @@
 import { useSessionStore } from "../stores/sessionStore";
 
 export function WebSocketIndicator() {
-  const socketReadyState = useSessionStore(
-    (state) => state.socketManager?.getReadyState()
-  );
+  const readyState = useSessionStore((state) => state.readyState);
 
   function getIndicatorStyles() {
-    switch (socketReadyState) {
+    switch (readyState) {
       case WebSocket.OPEN:
         return "bg-green-500";
       case WebSocket.CONNECTING:
@@ -19,7 +17,7 @@ export function WebSocketIndicator() {
   }
 
   function getStatusText() {
-    switch (socketReadyState) {
+    switch (readyState) {
       case WebSocket.OPEN:
         return "Connected";
       case WebSocket.CONNECTING:
