@@ -25,21 +25,21 @@ export function useSessionConnection() {
     console.warn("Connecting WebSocket...");
     socketManager.connect();
 
+    const controller = new AbortController();
+    const { signal } = controller;
+
     // Add listeners for unprompted updates
-    socketManager.addListener("resource_nodes", handleResourceNodes);
-    socketManager.addListener("inventory", handleInventory);
+    socketManager.addListener("resource_nodes", handleResourceNodes, signal);
+    socketManager.addListener("inventory", handleInventory, signal);
     socketManager.addListener("collect_resource_node_error",
-                              handleCollectResourceNodeError);
+                              handleCollectResourceNodeError, signal);
 
     return () => {
       console.warn("Disconnecting WebSocket in cleanup...");
       socketManager.disconnect();
 
       // Remove listeners
-      socketManager.removeListener("resource_nodes", handleResourceNodes);
-      socketManager.removeListener("inventory", handleInventory);
-      socketManager.addListener("collect_resource_node_error",
-                                handleCollectResourceNodeError);
+      controller.abort();
     };
   }, [socketManager, setNodes]);
 

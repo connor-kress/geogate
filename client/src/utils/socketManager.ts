@@ -99,11 +99,19 @@ export class WebSocketManager {
   //   });
   // }
 
-  addListener(eventType: string, callback: ListenerCallback): void {
+  addListener(
+    eventType: string, callback: ListenerCallback, signal?: AbortSignal
+  ): void {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, new Set());
     }
     this.listeners.get(eventType)!.add(callback);
+    // Handle AbortSignal for listener removal
+    if (signal) {
+      signal.addEventListener("abort", () => {
+        this.removeListener(eventType, callback);
+      });
+    }
   }
 
   removeListener(eventType: string, callback: ListenerCallback): void {
