@@ -58,12 +58,12 @@ export function useSessionConnection() {
     requestResourceNodes();
 
     // Handle possible reconnection
-    const readyState = socketManager.getReadyState();
+    const { readyState } = useSessionStore.getState()
     const shouldReconnect = (
       readyState === WebSocket.CLOSED
       || readyState === null
       || readyState === undefined
-    ) && !socketManager.getConnecting();
+    );
     // Effectively on timer when not connected
     // Should employ more advanced management with exponential backoff
     if (shouldReconnect) socketManager.connect();
@@ -76,7 +76,7 @@ export function useSessionConnection() {
       return;
     }
 
-    const readyState = socketManager.getReadyState();
+    const { readyState } = useSessionStore.getState()
     if (readyState === null || readyState === WebSocket.CLOSED) {
       console.log("WebSocket disconnected. Clearing resource nodes...");
       setNodes([]);

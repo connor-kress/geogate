@@ -8,35 +8,41 @@ export class WebSocketManager {
   private socket: WebSocket | null = null;
   private listeners = new Map<string, Set<ListenerCallback>>();
   // private pendingRequests = new Map<string, RequestResolver>();
-  private connecting = false;
 
-  constructor(private url: string) {}
-
-  getReadyState(): number | null {
-    return this.socket?.readyState ?? null;
-  }
-
-  isOpen(): boolean {
-    return !!this.socket && this.socket.readyState === WebSocket.OPEN;
-  }
-
-  getConnecting(): boolean {
-    return this.connecting;
-  }
+  constructor(
+    private url: string,
+    private setReadyState: (state: number | null) => void,
+    private getReadyState: () => number | null,
+  ) {}
 
   connect(onConnected?: (socket: WebSocket) => void): void {
-    if (this.connecting) {
+    if (this.getReadyState() === WebSocket.OPEN) {
+      console.log("Already connected to WebSocket");
+      return;
+    } else if (this.getReadyState() === WebSocket.CONNECTING) {
       console.log("Already connecting to WebSocket");
       return;
     }
 
-    this.connecting = true;
     this.socket = new WebSocket(this.url);
+    this.setReadyState(WebSocket.CONNECTING);
 
     this.socket.onopen = () => {
       console.log("WebSocket connected");
-      this.connecting = false;
+      this.setReadyState(WebSocket.OPEN);
       onConnected?.(this.socket!);
+    };
+
+    this.socket.onclose = (event) => {
+      console.log(
+        `WebSocket disconnected: code=${event.code}, reason=${event.reason}`
+      );
+      this.setReadyState(WebSocket.CLOSED);
+    };
+
+    this.socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      this.setReadyState(null);
     };
 
     this.socket.onmessage = (event) => {
@@ -45,28 +51,11 @@ export class WebSocketManager {
       this.handleMessage(data);
       // this.handleResponse(data);
     };
-
-    this.socket.onclose = (event) => {
-      console.log(
-        `WebSocket disconnected: code=${event.code}, reason=${event.reason}`
-      );
-      // this.connecting = false;
-      this.socket = null;
-    };
-
-    this.socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      this.connecting = false;
-      this.socket?.close();
-      this.socket = null;
-    };
   }
 
   disconnect(): void {
     if (this.socket) {
-      this.connecting = false;
       this.socket.close(1000, "User disconnected");
-      this.socket = null;
     }
   }
 
