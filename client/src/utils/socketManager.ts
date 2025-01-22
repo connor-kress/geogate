@@ -1,13 +1,13 @@
 type ListenerCallback = (data: any) => void;
-// type RequestResolver = {
-//   resolve: (value: any) => void,
-//   reject: (reason?: any) => void,
-// };
+type RequestResolver = {
+  resolve: (value: any) => void,
+  reject: (reason?: any) => void,
+};
 
 export class WebSocketManager {
   private socket: WebSocket | null = null;
   private listeners = new Map<string, Set<ListenerCallback>>();
-  // private pendingRequests = new Map<string, RequestResolver>();
+  private pendingRequests = new Map<string, RequestResolver>();
 
   constructor(
     private url: string,
@@ -49,7 +49,7 @@ export class WebSocketManager {
       const data = JSON.parse(event.data);
       console.log("Message received:", data);
       this.handleMessage(data);
-      // this.handleResponse(data);
+      this.handleResponse(data);
     };
   }
 
@@ -73,31 +73,29 @@ export class WebSocketManager {
     }
   }
 
-  // sendRequest<T>(event: string, payload: any): Promise<T> {
-  //   if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-  //     return Promise.reject(new Error("WebSocket is not connected"));
-  //   }
-  //
-  //   const requestId = crypto.randomUUID();
-  //   const message = { event, payload, requestId };
-  //
-  //   return new Promise<T>((resolve, reject) => {
-  //     this.pendingRequests.set(requestId, { resolve, reject });
-  //
-  //     try {
-  //       this.socket!.send(JSON.stringify(message));
-  //       setTimeout(() => {
-  //         if (this.pendingRequests.has(requestId)) {
-  //           reject(new Error("Request timed out"));
-  //           this.pendingRequests.delete(requestId);
-  //         }
-  //       }, 10000); // Timeout in 10 seconds
-  //     } catch (error) {
-  //       this.pendingRequests.delete(requestId);
-  //       reject(error);
-  //     }
-  //   });
-  // }
+  sendRequest<T>(type: string, data: any): Promise<T> {
+    if (this.getReadyState() !== WebSocket.OPEN) {
+      return Promise.reject(new Error("WebSocket is not connected"));
+    }
+    const requestId = crypto.randomUUID();
+    const message = { type, data, requestId };
+
+    return new Promise<T>((resolve, reject) => {
+      this.pendingRequests.set(requestId, { resolve, reject });
+      try {
+        this.socket!.send(JSON.stringify(message));
+        setTimeout(() => {
+          if (this.pendingRequests.has(requestId)) {
+            reject(new Error("Request timed out"));
+            this.pendingRequests.delete(requestId);
+          }
+        }, 10000); // Timeout in 10 seconds
+      } catch (error) {
+        this.pendingRequests.delete(requestId);
+        reject(error);
+      }
+    });
+  }
 
   addListener(
     eventType: string, callback: ListenerCallback, signal?: AbortSignal
@@ -125,7 +123,6 @@ export class WebSocketManager {
 
   private handleMessage(messageData: any): void {
     const { type, data } = messageData;
-
     if (this.listeners.has(type)) {
       this.listeners.get(type)!.forEach((callback) => callback(data));
     } else {
@@ -133,13 +130,12 @@ export class WebSocketManager {
     }
   }
 
-  // private handleResponse(data: any): void {
-  //   const { requestId, payload } = data;
-  //
-  //   if (this.pendingRequests.has(requestId)) {
-  //     const { resolve } = this.pendingRequests.get(requestId)!;
-  //     resolve(payload);
-  //     this.pendingRequests.delete(requestId);
-  //   }
-  // }
+  private handleResponse(messageData: any): void {
+    const { requestId, data } = messageData;
+    if (this.pendingRequests.has(requestId)) {
+      const { resolve } = this.pendingRequests.get(requestId)!;
+      resolve(data);
+      this.pendingRequests.delete(requestId);
+    }
+  }
 }
