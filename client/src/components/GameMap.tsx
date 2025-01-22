@@ -22,7 +22,7 @@ export function GameMap() {
     <MapContainer
       className="h-full"
       center={[position.lat, position.lon]}
-      zoom={18}
+      zoom={17}
       dragging={false}
       zoomControl={false}
       doubleClickZoom={false}
