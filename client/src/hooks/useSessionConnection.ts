@@ -12,6 +12,7 @@ export function useSessionConnection() {
   const { position } = useLocation(); // Custom hook to get location
   const setNodes = useNodeStore((state) => state.setNodes);
   const socketManager = useSessionStore((state) => state.socketManager);
+  const readyState = useSessionStore((state) => state.readyState);
 
   useEffect(() => {
     if (!socketManager) {
@@ -50,7 +51,6 @@ export function useSessionConnection() {
   }, [position, socketManager]);
 
   // Clear resource nodes on WebSocket disconnection
-  const { readyState } = useSessionStore.getState()
   useEffect(() => {
     if (!socketManager) {
       console.warn("WebSocketManager is not initialized");
