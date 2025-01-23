@@ -1,11 +1,10 @@
-from asyncpg import Pool
-from fastapi import WebSocket
 from db.items import get_user_inventory
 from models import User
+from utils.websocket_manager import WebSocketManager
 
 
-async def handle_get_inventory(websocket: WebSocket, user: User) -> None:
-    pool: Pool = websocket.app.state.db_pool
+async def handle_get_inventory(manager: WebSocketManager, user: User) -> None:
+    pool = manager.get_db_pool(user.id)
     async with pool.acquire() as conn:
         items = await get_user_inventory(conn, user.id)
     item_jsons = [item.model_dump(by_alias=True) for item in items]
@@ -13,4 +12,4 @@ async def handle_get_inventory(websocket: WebSocket, user: User) -> None:
         "type": "inventory",
         "data": item_jsons,
     }
-    await websocket.send_json(response)
+    await manager.send_json(user.id, response)

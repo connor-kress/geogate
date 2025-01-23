@@ -1,4 +1,5 @@
-from fastapi import WebSocket
+from asyncpg import Pool
+from fastapi import  WebSocket
 
 
 class WebSocketManager:
@@ -37,11 +38,24 @@ class WebSocketManager:
             # Race conditions can cause the key to be already deleted
             self.connections.pop(user_id, None)
 
-    async def send_message(self, message: str, user_id: int):
-        if user_id in self.connections:
-            websocket = self.connections[user_id]
-            await websocket.send_text(message)
+    async def send_json(self, user_id: int, message: dict):
+        websocket = self.connections.get(user_id)
+        if websocket:
+            try:
+                await websocket.send_json(message)
+            except RuntimeError as e:
+                print(f"Error sending data to user {user_id}: {e}")
 
-    async def broadcast(self, message: str):
-        for websocket in self.connections.values():
-            await websocket.send_text(message)
+    async def broadcast(self, message: dict):
+        for user_id, websocket in self.connections.items():
+            try:
+                await websocket.send_json(message)
+            except RuntimeError as e:
+                print(f"Error sending data to user {user_id}: {e}")
+
+    def get_db_pool(self, user_id: int) -> Pool:
+        websocket = self.connections.get(user_id)
+        if not websocket:
+            raise RuntimeError(f"No active WebSocket connection for user {user_id}")
+        return websocket.app.state.db_pool
+

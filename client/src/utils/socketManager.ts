@@ -26,7 +26,8 @@ export class WebSocketManager {
       console.log("Already connecting to WebSocket");
       return;
     }
-    this.socket = new WebSocket(this.url);
+    const newSocket = new WebSocket(this.url);
+    this.socket = newSocket;
     this.setReadyState(WebSocket.CONNECTING);
 
     this.socket.onopen = () => {
@@ -41,6 +42,11 @@ export class WebSocketManager {
     };
 
     this.socket.onclose = (event) => {
+      if (this.socket !== newSocket) {
+      // Not sure if this works
+        console.log("WebSocket superseded by new connection");
+        return;
+      }
       console.log(
         `WebSocket disconnected: code=${event.code}, reason=${event.reason}`
       );
@@ -50,7 +56,8 @@ export class WebSocketManager {
 
     this.socket.onerror = (error) => {
       console.error("WebSocket error:", error);
-      this.setReadyState(null);
+      this.setReadyState(WebSocket.CLOSED);
+      // Reconnect is sometimes redundant but adds robustness
       this.scheduleReconnect(onConnected);
     };
 
@@ -67,10 +74,9 @@ export class WebSocketManager {
   }
 
   private scheduleReconnect(onConnected?: (socket: WebSocket) => void): void {
-    console.log("Running scheduleReconnect");
     if (this.reconnectTimeout !== null) {
-      console.log("Reconnection already scheduled");
-      return; // Prevent multiple timeouts
+      // console.log("Reconnection already scheduled");
+      return;
     }
     const delay = Math.min(
       1000 * Math.pow(2, this.reconnectAttempts), // Exponential backoff

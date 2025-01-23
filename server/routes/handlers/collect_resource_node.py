@@ -1,14 +1,13 @@
 from typing import Any
-from asyncpg import Pool
-from fastapi import WebSocket
 from db.items import get_user_inventory, insert_or_add_items
 from db.nodes import delete_resource_node, get_resource_node, get_resource_nodes_of_user
 from models import User
 from utils.nodes import get_node_item_drops
+from utils.websocket_manager import WebSocketManager
 
 
 async def handle_collect_resource_node(
-    websocket: WebSocket, user: User, node_id: Any, request_id: Any
+    manager: WebSocketManager, user: User, node_id: Any, request_id: Any
 ) -> None:
     async def handle_invalid_param_error(param_name: str, param: Any):
         print(f"Invalid {param_name} passed to WebSocket by "
@@ -18,7 +17,7 @@ async def handle_collect_resource_node(
             "requestId": request_id,
             "error": f"Invalid {param_name}",
         }
-        await websocket.send_json(error)
+        await manager.send_json(user.id, error)
 
 
     if not isinstance(node_id, int):
@@ -27,7 +26,7 @@ async def handle_collect_resource_node(
     if not isinstance(request_id, str):
         await handle_invalid_param_error("request_id", request_id)
         return
-    pool: Pool = websocket.app.state.db_pool
+    pool = manager.get_db_pool(user.id)
     async with pool.acquire() as conn:
         node = await get_resource_node(conn, node_id, user.id)
         if node is None:
@@ -59,6 +58,6 @@ async def handle_collect_resource_node(
         "requestId": request_id,
         "data": new_items,
     }
-    await websocket.send_json(primary_response)
-    await websocket.send_json(inventory_response)
-    await websocket.send_json(nodes_response)
+    await manager.send_json(user.id, primary_response)
+    await manager.send_json(user.id, inventory_response)
+    await manager.send_json(user.id, nodes_response)

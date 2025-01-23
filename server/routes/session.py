@@ -54,10 +54,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         return
     await manager.connect(user.id, websocket)
     print(f"Added connection: {user.username} ({user.id})")
-    await handle_get_resource_nodes(websocket, user)
+    await handle_get_resource_nodes(manager, user)
     print("Sent resource nodes to "
           f"{user.username} ({user.id})")
-    await handle_get_inventory(websocket, user)
+    await handle_get_inventory(manager, user)
     print("Sent user inventory to "
           f"{user.username} ({user.id})")
 
@@ -95,15 +95,16 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 ):
                     created_session = True
             elif message_type == "get_resource_nodes":
-                await handle_get_resource_nodes(websocket, user)
+                await handle_get_resource_nodes(manager, user)
                 print("Sent resource nodes to "
                       f"{user.username} ({user.id})")
             elif message_type == "get_inventory":
-                await handle_get_inventory(websocket, user)
+                await handle_get_inventory(manager, user)
                 print("Sent user inventory to "
                       f"{user.username} ({user.id})")
             elif message_type == "collect_resource_node":
-                await handle_collect_resource_node(websocket, user, data, request_id)
+                await handle_collect_resource_node(manager, user,
+                                                   data, request_id)
                 print("Collecting resource node for "
                       f"{user.username} ({user.id})")
             else:
