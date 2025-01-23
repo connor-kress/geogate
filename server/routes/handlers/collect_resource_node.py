@@ -14,8 +14,9 @@ async def handle_collect_resource_node(
         print(f"Invalid {param_name} passed to WebSocket by "
               f"{user.username} ({user.id}): {param}")
         error = {
-            "type": "collect_resource_node_error",
-            "data": f"Invalid {param_name}",
+            "type": "error",
+            "requestId": request_id,
+            "error": f"Invalid {param_name}",
         }
         await websocket.send_json(error)
 
@@ -53,11 +54,11 @@ async def handle_collect_resource_node(
         "type": "resource_nodes",
         "data": node_jsons,
     }
-    collected_items_response = {
-        "type": "collected_items",
+    primary_response = {
+        "type": "success",
         "requestId": request_id,
         "data": new_items,
     }
-    await websocket.send_json(collected_items_response)
+    await websocket.send_json(primary_response)
     await websocket.send_json(inventory_response)
     await websocket.send_json(nodes_response)

@@ -46,10 +46,14 @@ export class WebSocketManager {
     };
 
     this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("Message received:", data);
-      this.handleMessage(data);
-      this.handleResponse(data);
+      const messageData = JSON.parse(event.data);
+      console.log("Message received:", messageData);
+      const { type } = messageData;
+      if (type === "success" || type === "error") {
+        this.handleResponse(messageData);
+      } else {
+        this.handleMessage(messageData);
+      }
     };
   }
 
@@ -100,6 +104,10 @@ export class WebSocketManager {
   addListener(
     eventType: string, callback: ListenerCallback, signal?: AbortSignal
   ): void {
+    if (eventType === "success" || eventType === "error") {
+      console.error(`Reserved event type: "${eventType}"`);
+      return;
+    }
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, new Set());
     }
@@ -131,11 +139,17 @@ export class WebSocketManager {
   }
 
   private handleResponse(messageData: any): void {
-    const { requestId, data } = messageData;
-    if (this.pendingRequests.has(requestId)) {
-      const { resolve } = this.pendingRequests.get(requestId)!;
+    const { requestId, type, data, error } = messageData;
+    if (!this.pendingRequests.has(requestId)) return;
+
+    const { resolve, reject } = this.pendingRequests.get(requestId)!;
+    if (type === "success") {
       resolve(data);
-      this.pendingRequests.delete(requestId);
+    } else if (type === "error") {
+      reject(new Error(error || "Unknown error"));
+    } else {
+      reject(new Error("Invalid response type"));
     }
-  }
+    this.pendingRequests.delete(requestId);
+}
 }

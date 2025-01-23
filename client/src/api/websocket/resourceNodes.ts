@@ -12,8 +12,12 @@ export async function collectResourceNode(node_id: number) {
     console.warn("Attemped to collect node without valid socketManager");
     return;
   }
-  const res = await socketManager.sendRequest(
-    "collect_resource_node", node_id
-  );
-  console.log("Collection response:", res);
+  try {
+    const res = await socketManager.sendRequest(
+      "collect_resource_node", node_id
+    );
+    console.log("Collection response:", res);
+  } catch (err) {
+    console.error("Collection error:", err);
+  }
 }

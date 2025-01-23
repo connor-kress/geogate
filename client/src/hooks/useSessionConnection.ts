@@ -6,10 +6,7 @@ import { requestResourceNodes } from "../api/websocket/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
 import { useNodeStore } from "../stores/nodeStore";
 import { handleInventory } from "../handlers/inventoryHandlers";
-import {
-  handleCollectResourceNodeError,
-  handleResourceNodes,
-} from "../handlers/resourceNodesHandlers";
+import { handleResourceNodes } from "../handlers/resourceNodesHandlers";
 
 export function useSessionConnection() {
   const { position } = useLocation(); // Custom hook to get location
@@ -31,8 +28,6 @@ export function useSessionConnection() {
     // Add listeners for unprompted updates
     socketManager.addListener("resource_nodes", handleResourceNodes, signal);
     socketManager.addListener("inventory", handleInventory, signal);
-    socketManager.addListener("collect_resource_node_error",
-                              handleCollectResourceNodeError, signal);
 
     return () => {
       console.warn("Disconnecting WebSocket in cleanup...");

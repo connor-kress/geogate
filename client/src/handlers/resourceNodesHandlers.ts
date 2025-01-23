@@ -8,10 +8,3 @@ export function handleResourceNodes(nodes: any[]) {
   const { setNodes } = useNodeStore.getState();
   setNodes(nodes);
 }
-
-export function handleCollectResourceNodeError(errorMessage: string) {
-  console.error(
-    "Error while attempting to collect resource node:",
-    errorMessage,
-  );
-}
