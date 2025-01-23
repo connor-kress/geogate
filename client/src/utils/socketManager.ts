@@ -8,6 +8,9 @@ export class WebSocketManager {
   private socket: WebSocket | null = null;
   private listeners = new Map<string, Set<ListenerCallback>>();
   private pendingRequests = new Map<string, RequestResolver>();
+  private reconnectAttempts = 0;
+  private maxReconnectDelay = 5 * 1000; // Maximum delay: 5 seconds
+  private reconnectTimeout: number | null = null;
 
   constructor(
     private url: string,
@@ -23,13 +26,17 @@ export class WebSocketManager {
       console.log("Already connecting to WebSocket");
       return;
     }
-
     this.socket = new WebSocket(this.url);
     this.setReadyState(WebSocket.CONNECTING);
 
     this.socket.onopen = () => {
       console.log("WebSocket connected");
       this.setReadyState(WebSocket.OPEN);
+      this.reconnectAttempts = 0;
+      if (this.reconnectTimeout !== null) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
       onConnected?.(this.socket!);
     };
 
@@ -38,11 +45,13 @@ export class WebSocketManager {
         `WebSocket disconnected: code=${event.code}, reason=${event.reason}`
       );
       this.setReadyState(WebSocket.CLOSED);
+      this.scheduleReconnect(onConnected);
     };
 
     this.socket.onerror = (error) => {
       console.error("WebSocket error:", error);
       this.setReadyState(null);
+      this.scheduleReconnect(onConnected);
     };
 
     this.socket.onmessage = (event) => {
@@ -57,9 +66,31 @@ export class WebSocketManager {
     };
   }
 
+  private scheduleReconnect(onConnected?: (socket: WebSocket) => void): void {
+    console.log("Running scheduleReconnect");
+    if (this.reconnectTimeout !== null) {
+      console.log("Reconnection already scheduled");
+      return; // Prevent multiple timeouts
+    }
+    const delay = Math.min(
+      1000 * Math.pow(2, this.reconnectAttempts), // Exponential backoff
+      this.maxReconnectDelay // Cap at maximum delay
+    );
+    console.log(`Attempting to reconnect in ${delay}ms...`);
+    this.reconnectTimeout = window.setTimeout(() => {
+      this.reconnectTimeout = null;
+      this.reconnectAttempts += 1;
+      this.connect(onConnected);
+    }, delay);
+  }
+
   disconnect(): void {
     if (this.socket) {
       this.socket.close(1000, "User disconnected");
+      if (this.reconnectTimeout !== null) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
     }
   }
 
