@@ -8,25 +8,29 @@ from utils.nodes import get_node_item_drops
 
 
 async def handle_collect_resource_node(
-    websocket: WebSocket, user: User, node_id: Any
+    websocket: WebSocket, user: User, node_id: Any, request_id: Any
 ) -> None:
-    async def handle_invalid_node_id_error():
-        print("Invalid node_id passed to WebSocket by "
-              f"{user.username} ({user.id}): {node_id}")
+    async def handle_invalid_param_error(param_name: str, param: Any):
+        print(f"Invalid {param_name} passed to WebSocket by "
+              f"{user.username} ({user.id}): {param}")
         error = {
             "type": "collect_resource_node_error",
-            "data": "Invalid node_id",
+            "data": f"Invalid {param_name}",
         }
         await websocket.send_json(error)
 
+
     if not isinstance(node_id, int):
-        await handle_invalid_node_id_error()
+        await handle_invalid_param_error("node_id", node_id)
+        return
+    if not isinstance(request_id, str):
+        await handle_invalid_param_error("request_id", request_id)
         return
     pool: Pool = websocket.app.state.db_pool
     async with pool.acquire() as conn:
         node = await get_resource_node(conn, node_id, user.id)
         if node is None:
-            await handle_invalid_node_id_error()
+            await handle_invalid_param_error("node_id", node_id)
             return
         await delete_resource_node(conn, node.id, user.id)
         new_items = get_node_item_drops(node.node_type)
@@ -49,5 +53,11 @@ async def handle_collect_resource_node(
         "type": "resource_nodes",
         "data": node_jsons,
     }
+    collected_items_response = {
+        "type": "collected_items",
+        "requestId": request_id,
+        "data": new_items,
+    }
+    await websocket.send_json(collected_items_response)
     await websocket.send_json(inventory_response)
     await websocket.send_json(nodes_response)

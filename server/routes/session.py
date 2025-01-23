@@ -84,6 +84,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 continue
             message_type = payload.get("type")
             data = payload.get("data")
+            request_id = payload.get("requestId")
             if message_type is None:
                 print("No type field in message from "
                       f"{user.username} ({user.id})")
@@ -102,7 +103,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 print("Sent user inventory to "
                       f"{user.username} ({user.id})")
             elif message_type == "collect_resource_node":
-                await handle_collect_resource_node(websocket, user, data)
+                await handle_collect_resource_node(websocket, user, data, request_id)
                 print("Collecting resource node for "
                       f"{user.username} ({user.id})")
             else:

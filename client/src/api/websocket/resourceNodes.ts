@@ -6,11 +6,14 @@ export function requestResourceNodes() {
   socketManager?.sendMessage(message)
 };
 
-export function collectResourceNode(node_id: number) {
+export async function collectResourceNode(node_id: number) {
   const { socketManager } = useSessionStore.getState()
-  const message = {
-    type: "collect_resource_node",
-    data: node_id,
-  };
-  socketManager?.sendMessage(message)
+  if (!socketManager) {
+    console.warn("Attemped to collect node without valid socketManager");
+    return;
+  }
+  const res = await socketManager.sendRequest(
+    "collect_resource_node", node_id
+  );
+  console.log("Collection response:", res);
 }

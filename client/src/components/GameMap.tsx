@@ -1,6 +1,6 @@
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { copyCoordsToClipboard } from "../utils/coords"
-import { Coords, ResourceNode } from "../types";
+import { Coords } from "../types";
 import { getResourceIcon, userIcon } from "../icons";
 import { useEffect } from "react";
 import { useUserStore } from "../stores/userStore";
@@ -69,9 +69,9 @@ export function GameMap() {
             </button><br />
             <button
               className="border border-black rounded px-1 cursor-pointer hover:text-zinc-500 active:text-zinc-400 mt-1"
-              onClick={() => {
+              onClick={async () => {
                 // popup.close();
-                collectResourceNode(node.id)
+                await collectResourceNode(node.id);
               }}
             >
               Collect node
