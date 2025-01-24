@@ -1,5 +1,5 @@
 from asyncpg import Pool
-from fastapi import  WebSocket
+from fastapi import WebSocket
 
 
 class WebSocketManager:

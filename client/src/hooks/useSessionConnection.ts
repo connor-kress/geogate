@@ -20,7 +20,7 @@ export function useSessionConnection() {
       return;
     }
 
-    console.warn("Connecting WebSocket...");
+    console.warn("Connecting WebSocket in useEffect");
     socketManager.connect();
 
     const controller = new AbortController();
@@ -31,7 +31,8 @@ export function useSessionConnection() {
     socketManager.addListener("inventory", handleInventory, signal);
 
     return () => {
-      console.warn("Disconnecting WebSocket in cleanup...");
+      console.warn("Disconnecting WebSocket in useEffect cleanup");
+      // This disconnect is require to prevent infinite connection loop
       socketManager.disconnect();
       controller.abort();
     };
