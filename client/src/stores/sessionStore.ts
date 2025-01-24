@@ -11,10 +11,9 @@ type SessionStoreState = {
   setReadyState: (readyState: number | null) => void,
 };
 
-
 export const useSessionStore = create<SessionStoreState>((set, get) => ({
   location: null,
-  socketManager: new WebSocketManager(
+  socketManager: WebSocketManager.getInstance(
     "ws://localhost:8000/session/ws",
     (readyState: number | null) => set({ readyState }),
     () => get().readyState,

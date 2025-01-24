@@ -5,33 +5,57 @@ type RequestResolver = {
 };
 
 export class WebSocketManager {
+  private static instance: WebSocketManager;
+
   private socket: WebSocket | null = null;
   private listeners = new Map<string, Set<ListenerCallback>>();
   private pendingRequests = new Map<string, RequestResolver>();
   private reconnectAttempts = 0;
   private maxReconnectDelay = 5 * 1000; // Maximum delay: 5 seconds
   private reconnectTimeout: number | null = null;
+  private uuid: string;
 
   constructor(
     private url: string,
     private setReadyState: (state: number | null) => void,
     private getReadyState: () => number | null,
-  ) {}
+  ) {
+    this.uuid = crypto.randomUUID();
+    console.log("-----------------------------------------------");
+    console.log("------------Created-WebSocketManager-----------");
+    console.log(`-----${this.uuid}------`);
+  }
+
+  public static getInstance(
+    url: string,
+    setReadyState: (state: number | null) => void,
+    getReadyState: () => number | null,
+  ): WebSocketManager {
+    if (!WebSocketManager.instance) {
+      WebSocketManager.instance = new WebSocketManager(
+        url, setReadyState, getReadyState
+      );
+    }
+    return WebSocketManager.instance;
+  }
 
   connect(onConnected?: (socket: WebSocket) => void): void {
-    if (this.getReadyState() === WebSocket.OPEN) {
-      console.log("Already connected to WebSocket");
-      return;
-    } else if (this.getReadyState() === WebSocket.CONNECTING) {
+    if (this.socket && this.socket.readyState === WebSocket.CONNECTING) {
       console.log("Already connecting to WebSocket");
       return;
+    } else if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      console.log("Already connected to WebSocket");
+      return;
     }
-    const newSocket = new WebSocket(this.url);
-    this.socket = newSocket;
+    console.log("connecting_______________________________________");
+    console.log("socket:", this.socket);
+    console.log("socket?.readyState:", this.socket?.readyState);
+    this.socket = new WebSocket(this.url);
+    (this.socket as any).uuid = crypto.randomUUID();
     this.setReadyState(WebSocket.CONNECTING);
 
     this.socket.onopen = () => {
-      console.log("WebSocket connected");
+      console.log(`WebSocket connected (manager: ${this.uuid}, socket: ${(this.socket as any).uuid})`);
       this.setReadyState(WebSocket.OPEN);
       this.reconnectAttempts = 0;
       if (this.reconnectTimeout !== null) {
@@ -42,16 +66,23 @@ export class WebSocketManager {
     };
 
     this.socket.onclose = (event) => {
-      if (this.socket !== newSocket) {
-      // Not sure if this works
+      if (event.reason === "Superseded by a new connection") {
+        console.log("-----------------------------------------------");
         console.log("WebSocket superseded by new connection");
+        console.log("this.socket =", this.socket);
+        console.log("this.socket?.readyState =", this.socket?.readyState);
+        console.log(`WebSocket closed (manager: ${this.uuid}, socket: ${(this.socket as any).uuid})`);
+        console.log(this.getReadyState());
         return;
       }
       console.log(
         `WebSocket disconnected: code=${event.code}, reason=${event.reason}`
       );
-      this.setReadyState(WebSocket.CLOSED);
-      this.scheduleReconnect(onConnected);
+      // console.log(`WebSocket closed (manager: ${this.uuid}, socket: ${(this.socket as any).uuid})`);
+      // this.disconnect(); // this doesn't work
+      if (this.socket && this.socket === event.target) {
+        this.scheduleReconnect(onConnected);
+      }
     };
 
     this.socket.onerror = (error) => {
@@ -64,6 +95,7 @@ export class WebSocketManager {
     this.socket.onmessage = (event) => {
       const messageData = JSON.parse(event.data);
       console.log("Message received:", messageData);
+      console.log(`WebSocket recieving: (manager: ${this.uuid}, socket: ${(this.socket as any).uuid})`);
       const { type } = messageData;
       if (type === "success" || type === "error") {
         this.handleResponse(messageData);
@@ -74,6 +106,10 @@ export class WebSocketManager {
   }
 
   private scheduleReconnect(onConnected?: (socket: WebSocket) => void): void {
+    if (this.socket && this.socket.readyState !== WebSocket.CLOSED) {
+      console.log("WebSocket is already active. Reconnect not needed.");
+      return;
+    }
     if (this.reconnectTimeout !== null) {
       // console.log("Reconnection already scheduled");
       return;
@@ -93,10 +129,12 @@ export class WebSocketManager {
   disconnect(): void {
     if (this.socket) {
       this.socket.close(1000, "User disconnected");
+      this.socket = null;
       if (this.reconnectTimeout !== null) {
         clearTimeout(this.reconnectTimeout);
         this.reconnectTimeout = null;
       }
+      this.setReadyState(WebSocket.CLOSED);
     }
   }
 
