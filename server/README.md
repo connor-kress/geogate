@@ -1,5 +1,5 @@
 # Geogate Server
-## Host for Development
+## Hosting for Development
 To host the FastAPI backend for development, multiple steps have to be taken. First, install the required python dependencies with the below command.
 ```bash
 $ cd server
