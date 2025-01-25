@@ -9,8 +9,10 @@ export class WebSocketManager {
   private listeners = new Map<string, Set<ListenerCallback>>();
   private pendingRequests = new Map<string, RequestResolver>();
   private reconnectAttempts = 0;
-  private maxReconnectDelay = 5 * 1000; // Maximum delay: 5 seconds
+  private minReconnectDelay = 1 * 1000; // 1 second
+  private maxReconnectDelay = 5 * 1000; // 5 seconds
   private reconnectTimeout: number | null = null;
+  private requestTimeoutDelay = 10 * 1000; // 10 seconds
   private uuid: string;
 
   constructor(
@@ -88,9 +90,10 @@ export class WebSocketManager {
       // console.log("Reconnection already scheduled");
       return;
     }
+    // Exponential backoff
     const delay = Math.min(
-      1000 * Math.pow(2, this.reconnectAttempts), // Exponential backoff
-      this.maxReconnectDelay // Cap at maximum delay
+      this.minReconnectDelay * Math.pow(2, this.reconnectAttempts),
+      this.maxReconnectDelay,
     );
     console.log(`Attempting to reconnect in ${delay}ms...`);
     this.reconnectTimeout = window.setTimeout(() => {
@@ -143,7 +146,7 @@ export class WebSocketManager {
             reject(new Error("Request timed out"));
             this.pendingRequests.delete(requestId);
           }
-        }, 10000); // Timeout in 10 seconds
+        }, this.requestTimeoutDelay);
       } catch (error) {
         this.pendingRequests.delete(requestId);
         reject(error);
