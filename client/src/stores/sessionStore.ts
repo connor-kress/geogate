@@ -11,12 +11,11 @@ type SessionStoreState = {
   setReadyState: (readyState: number | null) => void,
 };
 
-export const useSessionStore = create<SessionStoreState>((set, get) => ({
+export const useSessionStore = create<SessionStoreState>((set) => ({
   location: null,
   socketManager: new WebSocketManager(
     "ws://localhost:8000/session/ws",
     (readyState: number | null) => set({ readyState }),
-    () => get().readyState,
   ),
   readyState: null,
   setLocation: (location: Coords | null) => set({ location }),

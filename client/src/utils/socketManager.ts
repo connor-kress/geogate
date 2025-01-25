@@ -16,7 +16,6 @@ export class WebSocketManager {
   constructor(
     private url: string,
     private setReadyState: (state: number | null) => void,
-    private getReadyState: () => number | null,
   ) {
     this.uuid = crypto.randomUUID();
     console.log("----------------------------------------------");
@@ -25,7 +24,7 @@ export class WebSocketManager {
   }
 
   connect(onConnected?: (socket: WebSocket) => void): void {
-    if (this.socket && this.socket.readyState === WebSocket.CONNECTING) {
+    if (this.socket && this.socket?.readyState === WebSocket.CONNECTING) {
       console.log("Already connecting to WebSocket");
       return;
     } else if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -116,7 +115,7 @@ export class WebSocketManager {
 
   sendMessage(message: object): void {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.error("WebSocket is not connected or not ready to send messages.");
+      console.error("WebSocket is not connected");
       return;
     }
     try {
@@ -129,7 +128,7 @@ export class WebSocketManager {
   }
 
   sendRequest<T>(type: string, data: any): Promise<T> {
-    if (this.getReadyState() !== WebSocket.OPEN) {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       return Promise.reject(new Error("WebSocket is not connected"));
     }
     const requestId = crypto.randomUUID();
