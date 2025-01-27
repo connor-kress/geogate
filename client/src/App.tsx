@@ -1,17 +1,21 @@
-import { useState } from "react";
-import { Screen } from "./types";
-import { GameScreen } from "./screens/GameScreen";
-import { LoginScreen } from "./screens/LoginScreen";
-import { RegisterScreen } from "./screens/RegisterScreen";
+import { StatusBar } from 'expo-status-bar';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("login");
-
   return (
-    <div className="bg-zinc-700 h-screen">
-      {screen === "login" && <LoginScreen setScreen={setScreen} />}
-      {screen === "register" && <RegisterScreen setScreen={setScreen} />}
-      {screen === "game" && <GameScreen setScreen={setScreen} />}
-    </div>
+    <View style={styles.container}>
+      <Text>This is the hole app :(</Text>
+      <StatusBar style="auto" />
+      <Button title="Press me" />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

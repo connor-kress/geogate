@@ -1,7 +1,11 @@
 # Geogate Client
 ## Hosting for Development
-`npm start` (with Expo Go app)
-`npm run web` (localhost web version)
+```bash
+$ npm start  # using Expo Go app
+```
+```bash
+$ npm run web  # using web version
+```
 
 ## Building Application
 ```bash
