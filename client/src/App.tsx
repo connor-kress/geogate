@@ -1,16 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { Button, Text, View } from 'react-native';
+import { useState } from "react";
+import { Screen } from "./types";
+// import { GameScreen } from "./screens/GameScreen";
+import { LoginScreen } from "./screens/LoginScreen";
+// import { RegisterScreen } from "./screens/RegisterScreen";
+import { Text, View } from 'react-native';
 import "../global.css"
 
 export default function App() {
+  const [screen, setScreen] = useState<Screen>("login");
+
   return (
-    <View className="bg-zinc-700 min-h-screen w-full flex flex-col justify-center items-center gap-2">
-      <Text className="text-red-500 text-lg">This is the hole app :(</Text>
-      <StatusBar style="auto" />
-      <Button
-        title="I am a button"
-        onPress={() => console.log("What the button?")}
-      />
+    <View className="bg-zinc-700 min-h-screen w-full flex flex-col justify-center items-center">
+      {screen === "login" && <LoginScreen setScreen={setScreen} />}
+      {screen === "register" && <Text>Register Screen</Text>}
+      {screen === "game" && <Text>Game Screen</Text>}
     </View>
   );
 }

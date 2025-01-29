@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  GestureResponderEvent,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+// import { useUserStore } from "../store/userStore";
 import { ScreenHandler, User } from "../types";
-import { useUserStore } from "../stores/userStore";
 
 export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   const [formData, setFormData] = useState({
@@ -10,8 +18,8 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const setUsername = useUserStore((state) => state.setUsername);
-  const setUserId = useUserStore((state) => state.setUserId);
+  // const setUsername = useUserStore((state) => state.setUsername);
+  // const setUserId = useUserStore((state) => state.setUserId);
 
   // Check for existing session when component mounts
   useEffect(() => {
@@ -23,8 +31,9 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
 
         if (response.ok) {
           const data: User = await response.json();  // Add type validation
-          setUsername(data.username);
-          setUserId(data.id);
+          console.log("Setting user data:", data);
+          // setUsername(data.username);
+          // setUserId(data.id);
           setScreen("game");
           console.log("Existing session found:", data);
         }
@@ -35,9 +44,9 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
     }
 
     checkExistingSession();
-  }, [setUsername, setUserId, setScreen]);
+  }, [/* setUsername, setUserId */, setScreen]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: GestureResponderEvent) {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -61,8 +70,9 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
         throw Error("UserId not in login response");
       }
       // Update user store and switch screens
-      setUsername(formData.username);
-      setUserId(responseData.userId);
+      console.log("Setting user data:", formData.username, responseData.userId);
+      // setUsername(formData.username);
+      // setUserId(responseData.userId);
       setScreen("game");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -72,47 +82,37 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-2">
-      <h2 className="text-lg font-bold">Login:</h2>
-      
-      {error && (
-        <p className="text-red-500 text-sm">{error}</p>
-      )}
+    <View className="flex items-center gap-2 p-4">
+      <Text className="text-lg font-bold text-white">Login:</Text>
 
-      <input
-        type="text"
-        placeholder="username"
+      {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
+
+      <TextInput
+        placeholder="Username"
         value={formData.username}
-        onChange={(e) => {
-          setFormData(prev => ({ ...prev, username: e.target.value }));
-        }}
-        className="px-2 py-1 rounded text-zinc-800"
-        required
+        onChangeText={(text) => setFormData((prev) => ({ ...prev, username: text }))}
+        className="w-64 px-3 py-2 rounded bg-white text-black"
+        autoCapitalize="none"
       />
-      <input
-        type="password"
-        placeholder="password"
+      <TextInput
+        placeholder="Password"
         value={formData.password}
-        onChange={(e) => {
-          setFormData(prev => ({ ...prev, password: e.target.value }));
-        }}
-        className="px-2 py-1 rounded text-zinc-800"
-        required
+        onChangeText={(text) => setFormData((prev) => ({ ...prev, password: text }))}
+        className="w-64 px-3 py-2 rounded bg-white text-black"
+        secureTextEntry
       />
-      <button
-        type="submit"
+
+      <TouchableOpacity
+        onPress={handleSubmit}
         disabled={isLoading}
-        className="bg-zinc-600 px-4 py-1 rounded hover:bg-zinc-500 disabled:opacity-50"
+        className="bg-zinc-600 px-4 py-2 rounded hover:bg-zinc-500 disabled:opacity-50 w-64 flex items-center"
       >
-        {isLoading ? "Loading..." : "Login"}
-      </button>
-      <button
-        type="button"
-        onClick={() => setScreen("register")}
-        className="text-sm text-zinc-400 hover:text-zinc-300"
-      >
-        Need an account? Register
-      </button>
-    </form>
+        {isLoading ? <ActivityIndicator color="white" /> : <Text className="text-white">Login</Text>}
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => setScreen("register")}>
+        <Text className="text-sm text-zinc-400 hover:text-zinc-300">Need an account? Register</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
