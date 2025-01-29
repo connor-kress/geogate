@@ -1,4 +1,12 @@
 import { useState } from "react";
+import {
+  ActivityIndicator,
+  GestureResponderEvent,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ScreenHandler } from "../types";
 
 type RegisterFormData = {
@@ -15,7 +23,7 @@ export function RegisterScreen({ setScreen }: { setScreen: ScreenHandler }) {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: GestureResponderEvent) {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -43,47 +51,43 @@ export function RegisterScreen({ setScreen }: { setScreen: ScreenHandler }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-2">
-      <h2 className="text-lg font-bold">Register:</h2>
-      
-      {error && (
-        <p className="text-red-500 text-sm">{error}</p>
-      )}
+    <View className="items-center gap-2 p-4">
+      <Text className="text-lg font-bold text-white">Register:</Text>
 
-      <input
-        type="text"
+      {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
+
+      <TextInput
         placeholder="username"
         value={formData.username}
-        onChange={(e) => {
-          setFormData(prev => ({ ...prev, username: e.target.value }));
+        onChangeText={(text) => {
+          setFormData((prev) => ({ ...prev, username: text }));
         }}
-        className="px-2 py-1 rounded text-zinc-800"
-        required
+        className="w-64 px-3 py-2 rounded bg-white text-black"
+        autoCapitalize="none"
       />
-      <input
-        type="password"
+      <TextInput
         placeholder="password"
         value={formData.password}
-        onChange={(e) => {
-          setFormData(prev => ({ ...prev, password: e.target.value }));
+        onChangeText={(text) => {
+          setFormData((prev) => ({ ...prev, password: text }));
         }}
-        className="px-2 py-1 rounded text-zinc-800"
-        required
+        className="w-64 px-3 py-2 rounded bg-white text-black"
+        secureTextEntry
       />
-      <button
-        type="submit"
+
+      <TouchableOpacity
+        onPress={handleSubmit}
         disabled={isLoading}
-        className="bg-zinc-600 px-4 py-1 rounded hover:bg-zinc-500 disabled:opacity-50"
+        className="bg-zinc-600 px-4 py-2 rounded hover:bg-zinc-500 disabled:opacity-50 w-64 flex items-center"
       >
-        {isLoading ? "Loading..." : "Create"}
-      </button>
-      <button
-        type="button"
-        onClick={() => setScreen("login")}
-        className="text-sm text-zinc-400 hover:text-zinc-300"
-      >
-        Back to login
-      </button>
-    </form>
+        {isLoading ? <ActivityIndicator color="white" /> : <Text className="text-white">Create</Text>}
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => setScreen("login")}>
+        <Text className="text-sm text-zinc-400 hover:text-zinc-300">
+          Back to login
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }

@@ -82,22 +82,26 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   };
 
   return (
-    <View className="flex items-center gap-2 p-4">
+    <View className="items-center gap-2 p-4">
       <Text className="text-lg font-bold text-white">Login:</Text>
 
       {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
 
       <TextInput
-        placeholder="Username"
+        placeholder="username"
         value={formData.username}
-        onChangeText={(text) => setFormData((prev) => ({ ...prev, username: text }))}
+        onChangeText={(text) => {
+          setFormData((prev) => ({ ...prev, username: text }));
+        }}
         className="w-64 px-3 py-2 rounded bg-white text-black"
         autoCapitalize="none"
       />
       <TextInput
-        placeholder="Password"
+        placeholder="password"
         value={formData.password}
-        onChangeText={(text) => setFormData((prev) => ({ ...prev, password: text }))}
+        onChangeText={(text) => {
+          setFormData((prev) => ({ ...prev, password: text }));
+        }}
         className="w-64 px-3 py-2 rounded bg-white text-black"
         secureTextEntry
       />
@@ -111,7 +115,9 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => setScreen("register")}>
-        <Text className="text-sm text-zinc-400 hover:text-zinc-300">Need an account? Register</Text>
+        <Text className="text-sm text-zinc-400 hover:text-zinc-300">
+          Need an account? Register
+        </Text>
       </TouchableOpacity>
     </View>
   );
