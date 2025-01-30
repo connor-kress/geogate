@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-// import { useUserStore } from "../store/userStore";
+import { useUserStore } from "../stores/userStore";
 import { ScreenHandler, User } from "../types";
 
 export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
@@ -18,8 +18,8 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // const setUsername = useUserStore((state) => state.setUsername);
-  // const setUserId = useUserStore((state) => state.setUserId);
+  const setUsername = useUserStore((state) => state.setUsername);
+  const setUserId = useUserStore((state) => state.setUserId);
 
   // Check for existing session when component mounts
   useEffect(() => {
@@ -31,11 +31,10 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
 
         if (response.ok) {
           const data: User = await response.json();  // Add type validation
-          console.log("Setting user data:", data);
-          // setUsername(data.username);
-          // setUserId(data.id);
+          console.log("Found existing session:", data);
+          setUsername(data.username);
+          setUserId(data.id);
           setScreen("game");
-          console.log("Existing session found:", data);
         }
       } catch (error) {
         // Session invalid or expired - user needs to log in manually
@@ -44,7 +43,7 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
     }
 
     checkExistingSession();
-  }, [/* setUsername, setUserId */, setScreen]);
+  }, [setUsername, setUserId, setScreen]);
 
   async function handleSubmit(e: GestureResponderEvent) {
     e.preventDefault();
@@ -71,8 +70,8 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
       }
       // Update user store and switch screens
       console.log("Setting user data:", formData.username, responseData.userId);
-      // setUsername(formData.username);
-      // setUserId(responseData.userId);
+      setUsername(formData.username);
+      setUserId(responseData.userId);
       setScreen("game");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
