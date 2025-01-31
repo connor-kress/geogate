@@ -1,3 +1,4 @@
+import { Pressable, Text } from "react-native";
 import { useUserStore } from "../stores/userStore";
 import { ScreenHandler } from "../types";
 
@@ -23,11 +24,11 @@ export function LogoutButton({ setScreen }: { setScreen: ScreenHandler }) {
   }
 
   return (
-    <button
-      className="bg-zinc-600 px-4 py-1 rounded hover:bg-zinc-500"
-      onClick={handleLogout}
+    <Pressable
+      className="bg-zinc-600 px-4 py-1 rounded active:bg-zinc-500"
+      onPress={handleLogout}
     >
-      Logout
-    </button>
+      <Text className="text-white">Logout</Text>
+    </Pressable>
   );
 }

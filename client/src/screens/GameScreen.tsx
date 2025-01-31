@@ -1,3 +1,4 @@
+import { Text, View } from "react-native";
 // import { GameMap } from "../components/GameMap";
 // import { GenRandomNodeButton } from "../components/GenRandomNodeButton";
 import { useUserStore } from "../stores/userStore";
@@ -7,7 +8,7 @@ import { useSessionStore } from "../stores/sessionStore";
 import { useSessionConnection } from "../hooks/useSessionConnection";
 // import { WebSocketIndicator } from "../components/WebSocketIndicator";
 // import { InventoryView } from "../components/InventoryView";
-import { Text, View } from "react-native";
+import { LogoutButton } from "../components/LogoutButton";
 
 
 export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
@@ -28,6 +29,7 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
                    : "Loading..."
         }</Text>
       </View>
+      <LogoutButton setScreen={setScreen} />
     </View>
   );
 
