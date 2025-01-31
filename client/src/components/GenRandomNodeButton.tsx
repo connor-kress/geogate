@@ -1,3 +1,4 @@
+import { Pressable, Text } from "react-native";
 import { insertResourceNode } from "../api/http/resourceNodes";
 import { requestResourceNodes } from "../api/websocket/resourceNodes";
 import { useSessionStore } from "../stores/sessionStore";
@@ -23,11 +24,11 @@ export function GenRandomNodeButton() {
   }
 
   return (
-      <button
-        className="bg-zinc-600 px-4 py-1 rounded hover:bg-zinc-500"
-        onClick={insertRandomNode}
-      >
-        Generate New Node
-      </button>
+    <Pressable
+      className="bg-zinc-600 px-4 py-1 rounded active:bg-zinc-500"
+      onPress={insertRandomNode}
+    >
+      <Text className="text-white">Generate New Node</Text>
+    </Pressable>
   );
 }

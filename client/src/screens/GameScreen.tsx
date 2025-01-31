@@ -8,6 +8,7 @@ import { useSessionStore } from "../stores/sessionStore";
 import { useSessionConnection } from "../hooks/useSessionConnection";
 // import { WebSocketIndicator } from "../components/WebSocketIndicator";
 // import { InventoryView } from "../components/InventoryView";
+import { GenRandomNodeButton } from "../components/GenRandomNodeButton";
 import { LogoutButton } from "../components/LogoutButton";
 
 
@@ -29,6 +30,7 @@ export function GameScreen({ setScreen }: { setScreen: ScreenHandler }) {
                    : "Loading..."
         }</Text>
       </View>
+      <GenRandomNodeButton />
       <LogoutButton setScreen={setScreen} />
     </View>
   );
