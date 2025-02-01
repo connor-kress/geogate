@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   GestureResponderEvent,
+  Pressable,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useUserStore } from "../stores/userStore";
@@ -105,19 +105,19 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
         secureTextEntry
       />
 
-      <TouchableOpacity
+      <Pressable
         onPress={handleSubmit}
         disabled={isLoading}
         className="bg-zinc-600 px-4 py-2 rounded hover:bg-zinc-500 disabled:opacity-50 w-64 flex items-center"
       >
         {isLoading ? <ActivityIndicator color="white" /> : <Text className="text-white">Login</Text>}
-      </TouchableOpacity>
+      </Pressable>
 
-      <TouchableOpacity onPress={() => setScreen("register")}>
+      <Pressable onPress={() => setScreen("register")}>
         <Text className="text-sm text-zinc-400 hover:text-zinc-300">
           Need an account? Register
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }
