@@ -1,6 +1,12 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "typeRoots": ["./node_modules/@types", "./@types"],
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "jsx": "react-native"
+  },
+  "include": ["nativewind-env.d.ts", "./@types", "./src/**/*"],
+  "exclude": ["node_modules"]
 }
