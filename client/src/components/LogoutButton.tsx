@@ -1,13 +1,15 @@
 import { Pressable, Text } from "react-native";
 import { useUserStore } from "../stores/userStore";
 import { ScreenHandler } from "../types";
+import { config } from "../utils/config";
 
 export function LogoutButton({ setScreen }: { setScreen: ScreenHandler }) {
   const resetUser = useUserStore((store) => store.reset);
 
   async function handleLogout() {
     try {
-      const response = await fetch("http://localhost:8000/auth/logout", {
+      const url = `${config.apiBaseUrl}/auth/logout`;
+      const response = await fetch(url, {
         method: "POST",
         credentials: "include", // Include session_token cookie
       });

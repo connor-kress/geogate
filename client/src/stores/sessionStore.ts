@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Coords } from "../types";
 import { WebSocketManager } from "../utils/socketManager";
+import { config } from "../utils/config";
 
 type SessionStoreState = {
   location: Coords | null,
@@ -14,7 +15,7 @@ type SessionStoreState = {
 export const useSessionStore = create<SessionStoreState>((set) => ({
   location: null,
   socketManager: new WebSocketManager(
-    "ws://localhost:8000/session/ws",
+    `${config.wsBaseUrl}/session/ws`,
     (readyState: number | null) => set({ readyState }),
   ),
   readyState: null,

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useUserStore } from "../stores/userStore";
 import { ScreenHandler, User } from "../types";
+import { config } from "../utils/config";
 
 export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   const [formData, setFormData] = useState({
@@ -25,7 +26,8 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
   useEffect(() => {
     async function checkExistingSession() {
       try {
-        const response = await fetch("http://localhost:8000/auth/verify-session", {
+        const url = `${config.apiBaseUrl}/auth/verify-session`;
+        const response = await fetch(url, {
           credentials: "include",  // Includes session_token cookie
         });
 
@@ -50,7 +52,8 @@ export function LoginScreen({ setScreen }: { setScreen: ScreenHandler }) {
     setError("");
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const url = `${config.apiBaseUrl}/auth/login`;
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

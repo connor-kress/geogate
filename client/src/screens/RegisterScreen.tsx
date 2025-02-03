@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { ScreenHandler } from "../types";
+import { config } from "../utils/config";
 
 type RegisterFormData = {
   username: string,
@@ -27,21 +28,19 @@ export function RegisterScreen({ setScreen }: { setScreen: ScreenHandler }) {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
+    const url = `${config.apiBaseUrl}/auth/register`;
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Registration failed");
       }
-
       setScreen("login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");

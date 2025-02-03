@@ -1,9 +1,10 @@
 import { useUserStore } from "../../stores/userStore";
 import { Coords, NodeType, ResourceNode } from "../../types";
+import { config } from "../../utils/config";
 
 export async function fetchResourceNodes(): Promise<ResourceNode[] | null> {
   const { userId } = useUserStore.getState();
-  const url = `http://localhost:8000/nodes?user_id=${userId}`;
+  const url = `${config.apiBaseUrl}/nodes?user_id=${userId}`;
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -21,7 +22,8 @@ export async function insertResourceNode(
   coords: Coords, nodeType: NodeType
 ): Promise<number | null> {
   const { userId } = useUserStore.getState();
-  const url = `http://localhost:8000/nodes`;
+
+  const url = `${config.apiBaseUrl}/nodes`;
   const body = JSON.stringify({ userId, coords, nodeType });
   try {
     const response = await fetch(url, {
