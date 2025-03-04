@@ -1,5 +1,7 @@
 # Geogate Client
+
 ## Hosting for Development
+
 ```bash
 $ npm start  # using Expo Go app
 ```
@@ -8,6 +10,7 @@ $ npm run web  # using web version
 ```
 
 ## Building Application
+
 ```bash
 $ sudo npm install -g eas-cli
 $ eas login  # prompts for credentials
